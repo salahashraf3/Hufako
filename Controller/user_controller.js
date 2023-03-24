@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 var otpStore;
 let id;
 
-//password hashing
+//password Hash
 const securePassword = async (password) => {
   const hashedPassword = await bcrypt.hash(password, 10);
   return hashedPassword;
