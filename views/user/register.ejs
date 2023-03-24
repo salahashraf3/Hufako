@@ -98,6 +98,13 @@
                 <input type="submit" value="Send OTP" class="btn btn-primary py-3 px-5" name="otp" >
                 
               </div>
+              <%
+              if(typeof message  !== 'undefined'){
+                %>
+                  <span><%=message%></span>
+                <%
+              }
+              %>
             </form>
           
           </div>

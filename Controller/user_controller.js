@@ -1,9 +1,13 @@
 const User = require("../Model/user_model");
-// const otpStore = require("../Model/otp")
+
 const bcrypt = require("bcrypt");
 
-var otpStore;
-let id;
+
+const accountSid = 'ACdb3d03d7770bc380de78255a648ea7e6'; 
+const authToken = '9c3722aadbbc39600ed1172a0b35db59'; 
+const client = require('twilio')(accountSid, authToken ,{
+  lazyLoading: true
+});
 
 //password Hash
 const securePassword = async (password) => {
@@ -77,67 +81,63 @@ const postRegister = async (req, res) => {
   try {
     const phoneNumber = "+91" + req.body.number;
     const password = req.body.password;
+    const sPassword = await securePassword(password);
+    const name =  req.body.name;
+    const email = req.body.email;
 
-    const data = await new User({
-      name: req.body.name,
-      email: req.body.email,
-      password: await securePassword(password),
-      number: phoneNumber,
-      isVerified: false,
-    });
-    const result = await data.save();
-    if (result) {
-      const userEmail = await User.findOne({ email: req.body.email });
-      id = userEmail;
-      console.log(userEmail);
-    }
-
-    const accountSid = "AC518ebe266156b7915c2bac7cf4daffac";
-    const authToken = "12e6a58e93f7099a7893b3519dc84738";
-    const client = require("twilio")(accountSid, authToken);
-    const random = Math.floor(Math.random() * 1000000 + 1);
-
-    client.messages
-      .create({
-        body: random,
-        messagingServiceSid: "MG903ed6e2eb785ea61fb63e2e0cd47d5d",
+    const user = await User.findOne({ email: email });
+    if (user) {
+      res.render("user/register", { message: "Email already exists" });
+    }else{
+      
+      
+      const otpresponse = await client.verify.v2.services('VAf57025ceb2869fb170d396ec5c902ca6').verifications.create({
         to: phoneNumber,
-      })
-      .then(() => {
-        otpStore = random;
-        res.render("user/otp");
+        channel: 'sms',
       });
+      req.session.email = email;
+      req.session.name = name;
+      req.session.password = sPassword;
+      req.session.number = phoneNumber;
 
-    // res.redirect("/otp")
+      res.render('user/otp');
+    }
+    
   } catch (error) {
     console.log(error.message);
   }
-};
+}
 
 //getOtp
 const postOtp = async (req, res) => {
   try {
-    const otp = Number(req.body.otp);
-    const confirmOtp = otpStore;
-    if (otp == confirmOtp) {
-      
-
-      if (id !== "undefined") {
-        const userData = await User.findOneAndUpdate(
-          { email: id.email },
-          { isVerified: true }
-        );
-        if (userData) {
-          res.redirect("/login");
-        }
+    const otp = req.body.otp;
+    const phoneNumber = req.session.number;
+    console.log(phoneNumber);
+    const result = await client.verify.v2.services('VAf57025ceb2869fb170d396ec5c902ca6').verificationChecks.create({
+      to: phoneNumber,
+      code: otp,
+    });
+    if (result.valid === true) {
+      const data =await new User({
+        name: req.session.name,
+        email: req.session.email,
+        password: req.session.password,
+        number: req.session.number,
+        isVerified: true
+      })
+      const saveData = await data.save()
+      if(saveData){
+        res.redirect('/login');
       }
-    } else {
-      console.log("otp not verified");
+    }else{
+      res.render('user/otp',{message: "Otp validation failed"})
     }
+    
   } catch (error) {
     console.log(error.messsage);
   }
-};
+}
 
 
 
