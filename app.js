@@ -37,6 +37,9 @@ const user_route = require('./Routes/user_route')
 app.use('/',user_route)
 
 
+//admin routes
+const admin_route = require('./Routes/admin_route');
+app.use('/admin',admin_route)
 
 
 

@@ -23,6 +23,13 @@ user_route.post('/register',user_controller.postRegister)
 //otp
 user_route.post('/otp',user_controller.postOtp)
 
+//forget password
+user_route.get('/forget',user_controller.getForget)
+user_route.post('/forget',user_controller.postForget)
+
+//forget otp
+user_route.post('/forget_otp',user_controller.postForgetOTP)
+
 //logout
 user_route.get('/logout',user_controller.getLogout)
 

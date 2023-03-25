@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 
 
 const accountSid = 'ACdb3d03d7770bc380de78255a648ea7e6'; 
-const authToken = '9c3722aadbbc39600ed1172a0b35db59'; 
+const authToken = 'f19f57be7f0b454824735b3feacff2ed'; 
 const client = require('twilio')(accountSid, authToken ,{
   lazyLoading: true
 });
@@ -91,7 +91,7 @@ const postRegister = async (req, res) => {
     }else{
       
       
-      const otpresponse = await client.verify.v2.services('VAf57025ceb2869fb170d396ec5c902ca6').verifications.create({
+      await client.verify.v2.services('VAf57025ceb2869fb170d396ec5c902ca6').verifications.create({
         to: phoneNumber,
         channel: 'sms',
       });
@@ -99,7 +99,7 @@ const postRegister = async (req, res) => {
       req.session.name = name;
       req.session.password = sPassword;
       req.session.number = phoneNumber;
-
+      req.session = null
       res.render('user/otp');
     }
     
@@ -113,7 +113,6 @@ const postOtp = async (req, res) => {
   try {
     const otp = req.body.otp;
     const phoneNumber = req.session.number;
-    console.log(phoneNumber);
     const result = await client.verify.v2.services('VAf57025ceb2869fb170d396ec5c902ca6').verificationChecks.create({
       to: phoneNumber,
       code: otp,
@@ -139,6 +138,65 @@ const postOtp = async (req, res) => {
   }
 }
 
+//get forget password page
+const getForget = (req,res) =>{
+  res.render('user/forget_password')
+}
+
+//post forget password
+const postForget = async (req,res)=>{
+  try {
+    req.session.email = req.body.email
+    const password = req.body.password
+    req.session.password = await securePassword(password)
+    const checkEmail = await User.findOne({email: req.session.email})
+    if(checkEmail){
+      const number  = checkEmail.number
+      req.session.number = number;
+
+      await client.verify.v2.services('VAf57025ceb2869fb170d396ec5c902ca6').verifications.create({
+        to: number,
+        channel: 'sms'
+      })
+      res.render('user/forget_otp')
+    }else{
+      res.render('user/forget_password', {message: "Entered email does not exist"})
+    }
+
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
+//forget otp 
+const postForgetOTP = async (req,res) =>{
+  try {
+    const otp = req.body.otp
+    const phoneNumber = req.session.number;
+    const password  = req.session.password
+
+    const result = await client.verify.v2.services('VAf57025ceb2869fb170d396ec5c902ca6').verificationChecks.create({
+      to: phoneNumber,
+      code: otp,
+    })
+    if(result.valid === true){
+      const data = await User.findOneAndUpdate({number: phoneNumber},{password: password})
+      if(data){
+        req.session =  null
+        
+        res.redirect("/login")
+      }
+      else{
+        res.render('user/forget_otp', {message: "database error"})
+      }
+    }else{
+      res.render('user/forget_otp',{message: "otp invalid"})
+    }
+    
+  } catch (error) {
+    console.log(error.message);
+  }
+}
 
 
 //logout
@@ -155,4 +213,7 @@ module.exports = {
   postLogin,
   getLogout,
   postOtp,
+  getForget,
+  postForget,
+  postForgetOTP
 };
