@@ -101,73 +101,32 @@
                 <div class="row g-4">
                     
                     
-                    
-                    
-                    
-                    
-                    <div class="col-12">
-                        <a href="/admin/addUser"><button type="button" class="btn btn-success m-2">Add User</button></a>
+                    <div class="col-sm-12 col-xl-6">
                         <div class="bg-light rounded h-100 p-4">
-                            <h6 class="mb-4">Users</h6>
-                            <div class="table-responsive">
-
-                                <%
-                                     if(user.length > 0){
-                                %>
-                                   
-                                <table class="table">
-                                    <thead> 
-                                       <tr>
-                                            <th scope="col">Name</th>
-                                            <th scope="col">Email</th>
-                                            <th scope="col">Mobile</th>
-                                            <th scope="col">Verified</th>
-                                            <th scope="col">Block/Unblock</th>
-                                            <th scope="col">Delete/Edit</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        
-                                        <%user.forEach(function(user){%>
-                                        <tr>
-                                            
-                                            <td><%=user.name%></td>
-                                            <td><%=user.email%></td>
-                                            <td><%=user.number%></td>
-                                            <td><%=user.isVerified%></td>
-                                            <%
-                                            if(user.isVerified){
-                                                %>
-                                               <td><a href="/admin/blockUnblock?id=<%=user._id%>"><button type="button" class="btn btn-danger rounded-pill m-2">Block</button></a> </td> 
-                                                <%
-                                            }else{
-                                                %>
-                                                <td><a href="/admin/blockUnblock?id=<%=user._id%>"><button type="button" class="btn btn-success rounded-pill m-2">Unblock</button></a> </td> 
-                                                <%
-                                            }
-                                            %>
-                                            
-                                            <td>
-                                                <a href="/admin/editUser?id=<%=user._id%>"><button type="button" class="btn btn-sm btn-sm-square btn-primary m-2"><i class="fa fa-edit"></i></button></a> 
-                                                <a href="/admin/deleteUser?id=<%=user._id%>"><button type="button" class="btn btn-sm btn-sm-square btn-danger m-2"><i class="fa fa-trash"></i></button></a>
-                                            </td>
-                                        </tr>
-                                        
-                                        <%
-                                         })%>
-                                    </tbody>
-                                </table>
+                            <h6 class="mb-4">Add User</h6>
+                            <form action="/admin/addUser" method="post">
+                                <div class="mb-3">
+                                    <label for="exampleInputEmail1" class="form-label">Name</label>
+                                    <input type="String" class="form-control" name="name" >
+                                </div>
+                                <div class="mb-3">
+                                    <label for="exampleInputEmail1" class="form-label">Email address</label>
+                                    <input type="email" class="form-control"  name="email">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="exampleInputPassword1" class="form-label">Number</label>
+                                    <input type="number" class="form-control" name="number">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="exampleInputPassword1" class="form-label">Password</label>
+                                    <input type="password" class="form-control" name="password">
+                                </div>
                                 
-                                <%
-                                }else{
-                                %>
-                                    <div><H3>Users Empty</H3></div>
-                                <%
-                                }
-                                %>
-                            </div>
+                                <button type="submit" class="btn btn-primary">Sign in</button>
+                            </form>
                         </div>
                     </div>
+                    
                 </div>
             </div>
             <!-- Table End -->

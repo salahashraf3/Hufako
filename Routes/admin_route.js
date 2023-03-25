@@ -25,9 +25,22 @@ admin_route.get('/blockUnblock',session.logged,adminController.blockUnblockUser)
 
 
 
+
+//add user 
+admin_route.get('/addUser',session.logged,adminController.getAddUser)
+admin_route.post('/addUser',session.logged,adminController.postAddUser)
+
+//edit user
+admin_route.get('/editUser',session.logged,adminController.getEditUser)
+admin_route.post('/editUser',session.logged,adminController.postEditUser)
+
+
+//delete user
+admin_route.get('/deleteUser',session.logged,adminController.getDeleteUser)
+
+
 //admin logout
 admin_route.get('/logout',adminController.adminLogout)
-
 
 
 module.exports = admin_route
