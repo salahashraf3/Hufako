@@ -1,9 +1,10 @@
 const express = require("express")
 const app = express()
-const nocache = require('nocache')
 const session  = require('express-session')
-
-
+const day = 1 * 24 * 60 * 60 * 1000
+const path = require('path')
+require('dotenv').config({path: __dirname + '/.env'})
+ 
 
 
 //use middelwares
@@ -11,7 +12,7 @@ app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 
 //session
-app.use(session({secret:'salah',saveUninitialized:true,resave:false,cookie:({maxAge:120000})}))
+app.use(session({secret:'salah',saveUninitialized:true,resave:false,cookie:({maxAge:day})}))
 
 //cookies
 
@@ -41,8 +42,10 @@ app.use('/',user_route)
 const admin_route = require('./Routes/admin_route');
 app.use('/admin',admin_route)
 
+app.use((req,res) => {
+    res.status(404).render('admin/404')
+})
 
-
-app.listen(3000, ()=>{
-    console.log("Server running on port 3000")
+app.listen(process.env.PORT, ()=>{
+    console.log(`Server running on port ${process.env.PORT}`)
 })

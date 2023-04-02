@@ -2,6 +2,37 @@ const express = require('express');
 const admin_route = express()
 const adminController = require('../Controller/admin_controller')
 const session  = require('../middleware/adminsession')
+const path = require('path')
+const multer = require('multer')
+const storage = multer.diskStorage({
+    destination : (req,file,cb) => {
+        cb(null,path.join(__dirname, '../public/product_images'))
+    },
+    filename : (req,file,cb)=>{
+        const name = Date.now()+'-'+file.originalname;
+        cb(null,name)
+    }
+})
+
+
+const upload = multer({
+    storage: storage,
+    fileFilter: (req, file, cb) => {
+        if (
+          file.mimetype == "image/png" ||
+          file.mimetype == "image/jpg" ||
+          file.mimetype == "image/jpeg" ||
+          file.mimetype == "image/webp" 
+          
+        ) {
+          cb(null, true);
+        } else {
+          cb(null, false);
+          return cb(new Error("Only .png, .jpg and .jpeg .webp format allowed!"));
+        }
+      }
+})
+
 
 //get admin dashboard
 admin_route.get('/dashboard',session.logged,adminController.getAdmin)
@@ -39,8 +70,45 @@ admin_route.post('/editUser',session.logged,adminController.postEditUser)
 admin_route.get('/deleteUser',session.logged,adminController.getDeleteUser)
 
 
+//category
+admin_route.get('/category',session.logged,adminController.getCategory)
+
+//add category
+admin_route.get('/addCategory',session.logged,adminController.getAddCategory)
+admin_route.post('/addCategory',session.logged,adminController.postAddCategory)
+
+//delete category
+admin_route.get('/deleteCategory',session.logged,adminController.deleteCategory)
+
+
+
+
+//products
+admin_route.get('/products',session.logged,adminController.getProduct)
+
+//add products 
+admin_route.get('/addProduct',session.logged,adminController.getAddProducts)
+admin_route.post('/addProduct',session.logged,upload.array('images',4),adminController.addProduct)
+
+//edit products
+admin_route.get('/edit_product',session.logged,adminController.getEditProduct)
+admin_route.post('/edit_product',session.logged,upload.array('images',4),adminController.postEditProduct)
+
+//delete product 
+admin_route.get('/delete_product',session.logged,adminController.deleteProduct)
+
+
+
+
+
+
+
+
+
 //admin logout
 admin_route.get('/logout',adminController.adminLogout)
+
+
 
 
 module.exports = admin_route

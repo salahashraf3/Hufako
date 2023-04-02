@@ -58,8 +58,8 @@
                 <div class="navbar-nav w-100">
                     <a href="/admin/dashboard" class="nav-item nav-link "><i class="fa fa-tachometer-alt me-2"></i>Dashboard</a>
                     <a href="/admin/user_management" class="nav-item nav-link active"><i class="fa fa-user me-2"></i>User Management</a>
-                    <a href="form.html" class="nav-item nav-link"><i class="fa fa-laptop me-2"></i>Category</a>
-                    <a href="widget.html" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Products</a>
+                    <a href="/admin/category" class="nav-item nav-link"><i class="fa fa-laptop me-2"></i>Category</a>
+                    <a href="/admin/products" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Products</a>
                 </div>
             </nav>
         </div>
@@ -118,6 +118,7 @@
                                 <table class="table">
                                     <thead> 
                                        <tr>
+                                            <th scope="col">#</th>
                                             <th scope="col">Name</th>
                                             <th scope="col">Email</th>
                                             <th scope="col">Mobile</th>
@@ -128,9 +129,9 @@
                                     </thead>
                                     <tbody>
                                         
-                                        <%user.forEach(function(user){%>
+                                        <%user.forEach(function(user,index){%>
                                         <tr>
-                                            
+                                            <td><%=index+1%></td>
                                             <td><%=user.name%></td>
                                             <td><%=user.email%></td>
                                             <td><%=user.number%></td>
@@ -168,6 +169,8 @@
                             </div>
                         </div>
                     </div>
+
+                    
                 </div>
             </div>
             <!-- Table End -->
