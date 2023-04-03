@@ -1,6 +1,7 @@
 const User = require("../Model/user_model");
 const Product = require("../Model/product_model");
 const Cart = require("../Model/cart_model");
+const Order = require("../Model/order_model")
 
 // twilio config
 const { client } = require("../Config")
@@ -80,7 +81,12 @@ const postRegister = async (req, res) => {
   try {
     const phoneNumber = "+91" + req.body.number;
     const password = req.body.password;
-    const sPassword = await securePassword(password);
+    const repassword = req.body.repassword
+    if(password !== repassword){
+      res.render("user/register", { message: "Password and Re-Password are not same" });
+    }else{
+
+      const sPassword = await securePassword(password);
     const name = req.body.name;
     const email = req.body.email;
     req.session.email = email;
@@ -100,6 +106,9 @@ const postRegister = async (req, res) => {
         });
       res.render("user/otp");
     }
+
+    }
+    
   } catch (error) {
     console.log(error.message);
   }
@@ -346,7 +355,7 @@ const changeQty = async (req, res) => {
 
     const stockAvailable = await Product.findById(productId);
     if (stockAvailable.stock >= value) {
-      console.log("good");
+      
       await Cart.updateOne(
         {
           user: userId,
@@ -358,7 +367,6 @@ const changeQty = async (req, res) => {
       );
       res.json({ success: true});
     } else {
-      console.log(" stock over");
       res.json({ success: false });
     }
   } catch (error) {
@@ -383,6 +391,172 @@ const deleteCart = async (req, res) => {
   }
 };
 
+//get checkout
+const checkout = async(req,res) => {
+  try {
+    if(req.session.user){
+
+      const userData = await User.findOne({ name: req.session.name });
+
+        const cartData = await Cart.findOne({ user: userData._id }).populate(
+          "product.productId"
+        );
+
+        let Total;
+        if (cartData.product != 0) {
+          const total = await Cart.aggregate([
+            {
+              $match: { user: userData._id },
+            },
+            {
+              $unwind: "$product",
+            },
+            {
+              $project: {
+                price: "$product.price",
+                quantity: "$product.quantity",
+              },
+            },
+            {
+              $group: {
+                _id: null,
+                total: {
+                  $sum: {
+                    $multiply: ["$quantity", "$price"],
+                  },
+                },
+              },
+            },
+          ]).exec();
+          Total = total[0].total;
+
+          //pass the data to front
+          
+          const data = await User.findOne({
+            name: req.session.name
+          })
+          res.render('user/checkout' , {address: data.address ,total: Total})
+        }
+
+    }else{
+      res.redirect('/')
+    }
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
+//postAdrress
+const postAddress = async (req,res) => {
+  try {
+    if(req.session.user){
+      const { name, country, town, street , postcode, phone} = req.body
+      const userName = req.session.name
+      
+      await User.updateOne({name: userName},{
+        $push: {
+          address: {
+            name: name,
+            country: country,
+            town: town,
+            street: street,
+            postcode: postcode,
+            phone: phone
+          }
+        }
+      })
+      res.redirect('/checkout')
+    }
+    else{
+      res.redirect('/');
+    }
+    
+    
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
+//deleteAddress
+const deleteAddress = async (req,res) => {
+  try {
+    if(req.session.user){
+      const userName = req.session.name
+      const id = req.query.id
+      await User.updateOne({name: userName},{
+        $pull: {
+          address:{
+            _id: id
+          }
+        }
+      })
+      res.redirect('/checkout')
+    }else{
+      res.redirect('/')
+    }
+
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
+//postPlaceOrder
+const postPlaceOrder = async (req,res) => {
+  try {
+    if(req.session.user){
+      const {total , address, payment} = req.body
+      const user = await User.findOne({
+        name:req.session.name
+      })
+      const cartData = await Cart.findOne({user : user._id})
+      const product = cartData.product
+    
+      
+      const status = payment == "cod" ? "placed" : "pending"
+      
+      const order = await new Order({
+        deliveryDetails : address,
+        totalAmount: total,
+        status: status,
+        user: user._id,
+        paymentMethod: payment,
+        product: product,
+        Date: new Date(),
+      })
+
+
+
+      await order.save()
+      const data= await Cart.deleteOne({user : user._id})
+      for(i=0;i < product.length; i++){
+        const productId = product[i].productId
+        const quantity = Number(product[i].quantity)
+        console.log(quantity, typeof quantity);
+        const prodelete = await Product.findByIdAndUpdate(productId,{$inc : {stock : -quantity}})
+    }
+      if(data){
+        if(status == "placed" ){
+          res.json({codSuccess: true})
+        }
+      }
+
+    }else{
+      res.redirect('/')
+    }
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
+//getOrderPlaced
+const getOrderPlaced = (req,res) => {
+  try {
+    res.render('user/order_placed')
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
 module.exports = {
   getHome,
   getLogin,
@@ -399,4 +573,10 @@ module.exports = {
   addToCart,
   changeQty,
   deleteCart,
+  checkout,
+  postAddress,
+  deleteAddress,
+  postPlaceOrder,
+  getOrderPlaced,
+
 };

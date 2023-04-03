@@ -13,6 +13,7 @@ const notLogged = (req,res,next) =>{
 
 const logged = (req,res,next) =>{
     try {
+        
         if(req.session.login){
             next()
         }

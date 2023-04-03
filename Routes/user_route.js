@@ -41,6 +41,20 @@ user_route.post('/addtoCart',user_controller.addToCart)
 user_route.post('/changeQty',user_controller.changeQty)
 user_route.post('/deleteCart',user_controller.deleteCart)
 
+// Check out
+user_route.get('/checkout',user_controller.checkout)
+//addAddress
+user_route.post('/addAddress' , user_controller.postAddress)
+
+//delete address
+user_route.get('/delete-address',user_controller.deleteAddress)
+
+//post placeOrder
+user_route.post('/place-order',user_controller.postPlaceOrder)
+
+//Order Placed
+user_route.get('/order-placed',user_controller.getOrderPlaced)
+
 //logout
 user_route.get('/logout',user_controller.getLogout)
 

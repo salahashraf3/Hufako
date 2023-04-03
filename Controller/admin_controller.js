@@ -123,18 +123,35 @@ const getAddCategory = async (req, res) => {
 };
 //post add category
 const postAddCategory = async (req, res) => {
-  const name = req.body.name;
-  const data = await new Category({
-    name: name,
-  });
-  const result = await data.save();
-  if (result) {
-    res.redirect("/admin/category");
-  } else {
-    res.render("admin/add_category", {
-      message: "ERror while adding to then database",
-    });
+  try {
+    
+
+    const Name = req.body.name;
+    const data = await Category.findOne({
+      name: Name
+    })
+    if(data !== null){
+      res.render("admin/add_category" , {message: "category is already defined"});
+    }else{
+      const data1 = await new Category({
+        name: Name,
+      });
+      const result = await data1.save();
+      if (result) {
+        res.redirect("/admin/category");
+      } else {
+        res.render("admin/add_category", {
+          message: "ERror while adding to then database",
+        });
+      }
+    }
+
+
+  } catch (error) {
+    console.log(error.message);
   }
+ 
+  
 };
 
 //delete category

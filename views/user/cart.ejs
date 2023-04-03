@@ -148,7 +148,7 @@
 										<th>Product</th>
 										<th>Price</th>
 										<th>Quantity</th>
-										<th>Total</th>
+										
 									</tr>
 								</thead>
 								<tbody>
@@ -174,7 +174,7 @@
 											</div>
 										</td>
 										
-										<td class="total">0</td>
+										
 									</tr><!-- END TR-->
 									
 									<!-- END TR-->
@@ -206,10 +206,10 @@
     					<hr>
     					<p class="d-flex total-price">
     						<span>Total</span>
-    						<span id="total">$<%= total%></span>
+    						<span >$<%= total%></span>
     					</p>
     				</div>
-    				<p class="text-center"><a href="checkout.html" class="btn btn-primary py-3 px-4">Proceed to Checkout</a></p>
+    				<p class="text-center"><a href="/checkout" class="btn btn-primary py-3 px-4">Proceed to Checkout</a></p>
     			</div>
 				<%
 					}else{
@@ -286,15 +286,7 @@
             </div>
           </div>
         </div>
-        <div class="row">
-          <div class="col-md-12 text-center">
-
-            <p><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-						  Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="icon-heart color-danger" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
-						  <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-						</p>
-          </div>
-        </div>
+       
       </div>
     </footer>
     
@@ -347,20 +339,17 @@
 	function changeqty(userId,productId,price){
 			const priced = price
 			const value = parseInt(document.getElementById(productId).value)
-			console.log(priced,value);
 			$.ajax({
 			  url:'/changeQty',
 			  data:{
 				user:userId,
 				product:productId,
-				value: value
+				value: value,
 			  },
 			  method:'post',
 			  encoded:true,
 			}).done((data) => {
 				if(data.success){
-				
-				
 					location.reload()
 				}else{
 					swal("Oops!", "Out of stock", "error");

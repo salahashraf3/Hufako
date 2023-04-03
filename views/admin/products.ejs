@@ -29,6 +29,19 @@
 
     <!-- Template Stylesheet -->
     <link href="/admin_assets/css/style.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.13.2/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.2/css/jquery.dataTables.min.css">
+    <!-- Datatables -->
+    <script type="text/javascript" charset="utf8"
+        src="https://cdn.datatables.net/1.13.2/js/jquery.dataTables.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#categorytable').DataTable();
+        });
+    </script>
+
 </head>
 
 <body>
@@ -111,7 +124,7 @@
                                         <h4 class="mb-4">Products</h4>
                                         <a href="/admin/addProduct"><button class="btn btn-outline-dark">Add Product</button></a>
                                         <br><br>
-                                        <table class="table bg-light" id="productsTable">
+                                        <table class="table" id="categorytable">
                                             <thead>
                                                 <tr>
                                                     <th scope="col">#</th>
@@ -150,11 +163,9 @@
                                                             <td>
                                                                  <% if(product.deleted === true ){%>
                                                                     <a href="/admin/delete_product?id=<%= product._id %>"><button role="button"  class="btn btn-outline-primary" >Restore</button></a>
-                                                                    <!-- <button role="button" onclick="deletepro('<%= product._id %>')" class="btn btn-outline-primary" >Restore</button> -->
-                                                                 <!-- <a href="/admin/delete-product?id=<%= product._id %>"><button class="btn btn-success" onclick=" deleteconfirm(this)">Restore</button></a></td> -->
+                                                                    
                                                              <%}else{%>
-                                                                <!-- <a href="/admin/delete-product?id=<%= product._id %>"><button class="btn btn-danger" onclick=" deleteconfirm(this)">Delete</button></a></td> -->
-                                                                <!-- <button role="button" onclick="deletepro('<%= product._id %>')" class="btn btn-outline-danger" >Delete</button> -->
+                                                                
                                                                 <a href="/admin/delete_product?id=<%= product._id %>"><button role="button"  class="btn btn-outline-primary" >Delete</button></a>
             
                                                                  <%}%> 
@@ -183,8 +194,18 @@
             
                             </div>
                         </div>
-                    </div>
+                    </div> 
 
+
+                    
+                                            
+                                            
+                                        </tbody>
+        
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
                    
                     
                     

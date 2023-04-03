@@ -1,7 +1,5 @@
 const mongoose  = require('mongoose');
-mongoose.connect("mongodb://127.0.0.1:27017/Project1").then(()=>{
-    console.log("Connected to MongoDB");
-})
+
 
 const usersSchema = mongoose.Schema({
     name: {
@@ -23,7 +21,35 @@ const usersSchema = mongoose.Schema({
     isVerified: {
         type:Boolean,
         required: true
-    }
+    },
+    address: [
+        {
+            name: {
+                type: String,
+                required: true,
+            },
+            phone: {
+                type: String,
+                required: true,
+            },
+            country: {
+                type: String,  
+                required: true,
+            },
+            town: {
+                type: String,
+                required: true,
+            },
+            street: {
+                type: String,
+                required: true,
+            },
+            postcode: {
+                type: String,
+                required: true,
+            }
+        }
+    ]
 
 
 })
