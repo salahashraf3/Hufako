@@ -17,7 +17,6 @@ const getHome = async (req, res) => {
   try {
     const product = await Product.find();
     if (req.session.user) {
-      console.log(product);
       res.render("user/home", { user: req.session.name, products: product });
     } else {
       req.session.user = false;
@@ -293,7 +292,6 @@ const getCart = async (req, res) => {
       }
     } else {
       res.redirect("/");
-      // console.log("error with session at get cart");
     }
   } catch (error) {
     console.log(error.message);
@@ -338,7 +336,6 @@ const addToCart = async (req, res) => {
       }
       res.json({ success: true });
     } else {
-      console.log("no user found new");
       res.json({ success: false });
     }
   } catch (error) {
@@ -531,7 +528,6 @@ const postPlaceOrder = async (req,res) => {
       for(i=0;i < product.length; i++){
         const productId = product[i].productId
         const quantity = Number(product[i].quantity)
-        console.log(quantity, typeof quantity);
         const prodelete = await Product.findByIdAndUpdate(productId,{$inc : {stock : -quantity}})
     }
       if(data){
