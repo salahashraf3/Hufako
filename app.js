@@ -43,7 +43,7 @@ const admin_route = require('./Routes/admin_route');
 app.use('/admin',admin_route)
 
 app.use((req,res) => {
-    res.status(404).render('admin/404')
+    res.status(404).render('404')
 })
 
 app.listen(process.env.PORT, ()=>{

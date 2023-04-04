@@ -2,6 +2,7 @@ const User = require("../Model/user_model");
 const bcrypt = require("bcrypt");
 const Category = require("../Model/category_model");
 const Product = require("../Model/product_model");
+const Coupon =  require("../Model/coupon_model")
 const path = require("path");
 const sharp = require("sharp");
 const fs = require("fs");
@@ -347,6 +348,56 @@ const deleteProduct = async (req, res) => {
   }
 };
 
+//getCoupon
+const getCoupon = async (req,res) => {
+  try {
+    const coupon = await Coupon.find()
+    res.render('admin/coupon' , {data: coupon})
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+//getAddCoupon
+const getAddCoupon = async (req,res) => {
+  try {
+    res.render('admin/add_coupon')
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+//postAddCoupon
+const postAddCoupon = async (req,res) => {
+  try {
+    let coupons=new Coupon({
+      couponcode:req.body.name,
+      couponamounttype:req.body.coupontype,
+      couponamount:req.body.amount,
+      mincartamount:req.body.mincart,
+      maxredeemamount:req.body.maxredeem,
+      expiredate:req.body.date,
+      limit:req.body.limit,
+    
+      
+  })
+  await coupons.save()
+  res.redirect("/admin/coupon")
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
+//delete coupon
+const deleteCoupon = async (req,res) => {
+  try {
+    
+    await Coupon.findByIdAndDelete({couponcode: req.query.code})
+    res.redirect("/admin/coupon")
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
+
 module.exports = {
   getAdmin,
   getAdminLogin,
@@ -369,4 +420,8 @@ module.exports = {
   getEditProduct,
   postEditProduct,
   deleteProduct,
+  getCoupon,
+  getAddCoupon,
+  postAddCoupon,
+  deleteCoupon
 };

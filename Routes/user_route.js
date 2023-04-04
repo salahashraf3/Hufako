@@ -55,6 +55,11 @@ user_route.post('/place-order',user_controller.postPlaceOrder)
 //Order Placed
 user_route.get('/order-placed',user_controller.getOrderPlaced)
 
+//applycoupon
+user_route.post('/applycoupon',user_controller.applycoupon)
+
+
+
 //logout
 user_route.get('/logout',user_controller.getLogout)
 

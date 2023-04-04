@@ -72,10 +72,11 @@ admin_route.get('/delete_product',session.logged,adminController.deleteProduct)
 
 
 
-
-
-
-
+//coupon
+admin_route.get("/coupon",adminController.getCoupon)
+admin_route.get("/addCoupon",adminController.getAddCoupon)
+admin_route.post("/addCoupon",adminController.postAddCoupon)
+admin_route.get("/deleteCoupon",adminController.deleteCoupon)
 
 
 //admin logout

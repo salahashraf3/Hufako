@@ -2,6 +2,7 @@ const User = require("../Model/user_model");
 const Product = require("../Model/product_model");
 const Cart = require("../Model/cart_model");
 const Order = require("../Model/order_model")
+const Coupon = require("../Model/coupon_model")
 
 // twilio config
 const { client } = require("../Config")
@@ -532,6 +533,12 @@ const postPlaceOrder = async (req,res) => {
     }
       if(data){
         if(status == "placed" ){
+          const couponData = await Coupon.findById(req.session.couponId)
+          let newLimit = couponData.limit-1
+          await Coupon.findByIdAndUpdate(couponData._id, {
+              limit: newLimit
+          })
+          
           res.json({codSuccess: true})
         }
       }
@@ -550,6 +557,52 @@ const getOrderPlaced = (req,res) => {
     res.render('user/order_placed')
   } catch (error) {
     console.log(error.message);
+  }
+}
+
+//apply coupon
+const applycoupon=async(req,res)=>{
+  try {
+      let code=req.body.code
+      let amount=req.body.amount
+      let userData=await User.find({name:req.session.name})
+      let userexist=await Coupon.findOne({couponcode:code,used:{$in:[userData._id]}})
+      if(userexist){
+          res.json({user:true})
+      }else{
+          const couponData=await Coupon.findOne({couponcode:code})
+          if(couponData){
+              if(couponData.expiredate>=new Date()){
+                  if(couponData.limit!=0){
+                      if(couponData.mincartamount<=amount){
+                          let discountvalue=couponData.couponamount
+                              
+                          let distotal=Math.round(amount-discountvalue)
+                          let couponId = couponData._id
+                          req.session.couponId = couponId
+                         
+                         return res.json({couponokey:true,
+                              
+                              distotal,
+                              discountvalue,
+                              code
+                          })
+                      }else{
+                          res.json({cartamount:true})
+                      }
+                  }else{
+                      res.json({limit:true})
+                  }
+              }else{
+                  res.json({expire:true})
+              }
+          }else{
+              res.json({invalid:true})
+          }
+      }
+      
+  } catch (error) {
+      console.log(error.message);
   }
 }
 
@@ -574,5 +627,5 @@ module.exports = {
   deleteAddress,
   postPlaceOrder,
   getOrderPlaced,
-
+  applycoupon,
 };
