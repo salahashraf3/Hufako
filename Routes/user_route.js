@@ -59,6 +59,13 @@ user_route.get('/order-placed',user_controller.getOrderPlaced)
 user_route.post('/applycoupon',user_controller.applycoupon)
 
 
+///getUserProfile
+user_route.get('/getUserProfile',user_controller.getUserProfile)
+
+
+//razorpayVerifyPAyment
+user_route.post('/verifyPayment',user_controller.verifyPayment)
+
 
 //logout
 user_route.get('/logout',user_controller.getLogout)

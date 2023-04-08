@@ -73,10 +73,26 @@ admin_route.get('/delete_product',session.logged,adminController.deleteProduct)
 
 
 //coupon
-admin_route.get("/coupon",adminController.getCoupon)
-admin_route.get("/addCoupon",adminController.getAddCoupon)
-admin_route.post("/addCoupon",adminController.postAddCoupon)
-admin_route.get("/deleteCoupon",adminController.deleteCoupon)
+admin_route.get("/coupon",session.logged,adminController.getCoupon)
+admin_route.get("/addCoupon",session.logged,adminController.getAddCoupon)
+admin_route.post("/addCoupon",session.logged,adminController.postAddCoupon)
+admin_route.get("/deleteCoupon,session.logged",adminController.deleteCoupon)
+
+//banner
+admin_route.get('/banner',session.logged,adminController.getBanner)
+admin_route.get('/addBanner',session.logged,adminController.getAddBanner)
+admin_route.post('/addBanner',session.logged,upload.single('image'),adminController.postAddBanner)
+admin_route.get('/showBanner',session.logged,adminController.unlistBanner)
+
+//order
+admin_route.get("/order",session.logged,adminController.getOrder)
+admin_route.get('/singleOrder',session.logged,adminController.viewOrder)
+
+//updateStatus
+admin_route.post("/updateStatus",session.logged,adminController.updateStatus)
+
+
+
 
 
 //admin logout

@@ -3,13 +3,16 @@ const bcrypt = require("bcrypt");
 const Category = require("../Model/category_model");
 const Product = require("../Model/product_model");
 const Coupon =  require("../Model/coupon_model")
+const Banner = require('../Model/banner_model')
+const Order = require("../Model/order_model")
 const path = require("path");
 const sharp = require("sharp");
 const fs = require("fs");
 const imgurUploader = require("imgur-uploader");
 
 //password Hash
-const {securePassword} = require('../Config')
+const {securePassword} = require('../Config');
+const { log } = require("console");
 
 //admin dashboard
 const getAdmin = (req, res) => {
@@ -128,10 +131,8 @@ const postAddCategory = async (req, res) => {
     
 
     const Name = req.body.name;
-    const data = await Category.findOne({
-      name: Name
-    })
-    if(data !== null){
+    const data = await Category.findOne({"name" : { $regex: Name,$options : 'i'}})
+    if(data){
       res.render("admin/add_category" , {message: "category is already defined"});
     }else{
       const data1 = await new Category({
@@ -192,7 +193,7 @@ const addProduct = async (req, res) => {
     const category = await Category.find()
     res.render('admin/add_product' , {category: category , message: "Please upload an image"})
    }
-
+    let newImgArr = []
     image.forEach(function (image, index) {
       const imagePath = path.join(
         __dirname,
@@ -212,26 +213,30 @@ const addProduct = async (req, res) => {
           //upload to cdn
           imgurUploader(newImage, { title: "Hello!" }).then((data) => {
             fs.unlinkSync(newImagePath)
-            const product =  new  Product({
-                productname: name,
-                image: data.link,
-                description: description,
-                category: category,
-                price: price,
-                stock: stock,
-                deleted: false,
-            })
-            const result  =  product.save()
-            if(result){
-                res.redirect('/admin/products');
-            }
+            console.log(data.link);
+            newImgArr.push(data.link)
           });
         })
         .catch((error) => {
           console.log(error);
         });
-    });
-
+    })
+    console.log(newImgArr);
+    setTimeout(()=>{
+      const product =  new  Product({
+        productname: name,
+        image: newImgArr,
+        description: description,
+        category: category,
+        price: price,
+        stock: stock,
+        deleted: false,
+    })
+    const result  =  product.save()
+    if(result){
+        res.redirect('/admin/products');
+    }
+    },2500)
    
   } catch (error) {
     console.log(error.message);
@@ -397,6 +402,100 @@ const deleteCoupon = async (req,res) => {
   }
 }
 
+// getBanner
+const getBanner = async (req,res) => {
+  try {
+    const bannerData = await Banner.find()
+   res.render('admin/banner' ,{data: bannerData})
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
+//addBanner
+const getAddBanner = async (req,res) => {
+  try {
+    res.render("admin/add_banner")
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
+//postAddBanner
+const postAddBanner = async (req,res) => {
+  try {
+    const heading = req.body.heading
+        const discription = req.body.discription
+        const image = req.file.filename
+        
+        const data = new Banner({
+            heading : heading,
+            discription : discription,
+            image : image,
+            
+        })
+
+        const result = await data.save()
+        if(result){
+            res.redirect('/admin/banner')
+        }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+
+//unlist banner
+const unlistBanner = async (req,res) => {
+  try {
+      const id = req.query.id
+      const data = await Banner.findById(id)
+      if(data.status == true){
+          await Banner.findByIdAndUpdate(id,{status : false})
+      }else {
+          await Banner.findByIdAndUpdate(id,{status : true})
+      }
+      res.redirect('/admin/banner')
+  } catch (error) {
+      console.log(error.message);
+  }
+}
+
+//getOrder
+const getOrder = async (req,res) => {
+  try {
+    const orderData = await Order.find()
+    res.render("admin/order" ,{data: orderData});
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+//viewSingleOrder
+const viewOrder = async (req,res) => {
+  try {
+    const orderId = req.query.id
+        const orderData = await Order.findById(orderId).populate('product.productId')
+        const userId = orderData.user
+        const userData =  await User.findById(userId)
+
+    res.render("admin/single_order" , {orderData,userData})
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
+//updateStatus
+const updateStatus = async (req,res) => {
+  try {
+    const status = req.body.status
+    const orderId = req.body.orderId
+    await Order.findByIdAndUpdate(orderId,{status : status})
+    res.redirect('/admin/order')
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
 
 module.exports = {
   getAdmin,
@@ -423,5 +522,12 @@ module.exports = {
   getCoupon,
   getAddCoupon,
   postAddCoupon,
-  deleteCoupon
+  deleteCoupon,
+  getBanner,
+  getAddBanner,
+  postAddBanner,
+  unlistBanner,
+  getOrder,
+  viewOrder,
+  updateStatus,
 };

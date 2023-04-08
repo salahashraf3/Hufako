@@ -57,7 +57,7 @@
             </li>
 
             <li class="nav-item">
-              <a href="about.html" class="nav-link">About</a>
+              <a href="/getUserProfile" class="nav-link">About</a>
             </li>
             <li class="nav-item">
               <a href="blog.html" class="nav-link">Blog</a>
@@ -103,13 +103,17 @@
         <div class="slider-item js-fullheight">
           <div class="overlay"></div>
           <div class="container-fluid p-0">
+
+            
+
+              
             <div
               class="row d-md-flex no-gutters slider-text align-items-center justify-content-end"
               data-scrollax-parent="true"
             >
               <img
-                class="one-third order-md-last img-fluid"
-                src="images/bg_1.png"
+                class=" order-md-last img-fluid"
+                src="/product_images/<%= banner[0].image %>"
                 alt=""
               />
               <div
@@ -119,20 +123,20 @@
                 <div class="text">
                   <span class="subheading">#New Arrival</span>
                   <div class="horizontal">
-                    <h1 class="mb-4 mt-3">Shoes Collection 2019</h1>
+                    <h1 class="mb-4 mt-3 "><%= banner[0].heading %></h1>
                     <p class="mb-4">
-                      A small river named Duden flows by their place and
-                      supplies it with the necessary regelialia. It is a
-                      paradisematic country.
+                      <%= banner[0].discription%>.
                     </p>
 
-                    <p><a href="#" class="btn-custom">Discover Now</a></p>
+                    
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+
+      
 
         <div class="slider-item js-fullheight">
           <div class="overlay"></div>
@@ -141,7 +145,7 @@
               class="row d-flex no-gutters slider-text align-items-center justify-content-end"
               data-scrollax-parent="true"
             >
-              <img class="one-third order-md-last img-fluid" src="" alt="" />
+              <img class="order-md-last img-fluid" src="/product_images/<%= banner[1].image %>" alt="" />
               <div
                 class="one-forth d-flex align-items-center ftco-animate"
                 data-scrollax=" properties: { translateY: '70%' }"
@@ -149,11 +153,9 @@
                 <div class="text">
                   <span class="subheading">#New Arrival</span>
                   <div class="horizontal">
-                    <h1 class="mb-4 mt-3">New Collection</h1>
+                    <h1 class="mb-4 mt-3"><%= banner[3].heading%>.</h1>
                     <p class="mb-4">
-                      A small river named Duden flows by their place and
-                      supplies it with the necessary regelialia. It is a
-                      paradisematic country.
+                      <%= banner[3].discription%>.
                     </p>
 
                     <p><a href="#" class="btn-custom">Discover Now</a></p>
@@ -163,6 +165,8 @@
             </div>
           </div>
         </div>
+
+
       </div>
     </section>
 

@@ -29,6 +29,18 @@
 
     <!-- Template Stylesheet -->
     <link href="/admin_assets/css/style.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.13.2/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.2/css/jquery.dataTables.min.css">
+
+
+    <script type="text/javascript" charset="utf8"
+        src="https://cdn.datatables.net/1.13.2/js/jquery.dataTables.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#categorytable').DataTable();
+        });
+    </script>
 </head>
 
 <body>
@@ -60,9 +72,10 @@
                     <a href="/admin/user_management" class="nav-item nav-link "><i class="fa fa-user me-2"></i>User Management</a>
                     <a href="/admin/category" class="nav-item nav-link "><i class="fa fa-laptop me-2"></i>Category</a>
                     <a href="/admin/products" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Products</a>
-                    <a href="/admin/coupon" class="nav-item nav-link active"><i class="fa fa-th me-2"></i>Coupon</a>
-                    <a href="/admin/banner" class="nav-item nav-link "><i class="fa fa-th me-2"></i>Banner</a>
+                    <a href="/admin/coupon" class="nav-item nav-link "><i class="fa fa-th me-2"></i>Coupon</a>
+                    <a href="/admin/banner" class="nav-item nav-link active"><i class="fa fa-th me-2"></i>Banner</a>
                     <a href="/admin/order" class="nav-item nav-link "><i class="fa fa-th me-2"></i>Order</a>
+                    
                 </div>
             </nav>
         </div>
@@ -99,72 +112,49 @@
             <!-- Navbar End -->
 
 
-            <!-- Table Start -->
-            <div class="container-fluid pt-4 px-4">
-                <div class="row g-4">
-                    
-
-                   
-                    
+            <div class="container-fluid pt-5 px-4">
+                <h1>Banner</h1>
+                <a href="/admin/addBanner"><button class="btn btn-outline-success">Add Banner</button></a>
+                <div class="row pt-4 g-4">
                     <div class="col-12">
-                        <a href="/admin/addCoupon"><button type="button" class="btn btn-success m-2">Add Coupon</button></a>
                         <div class="bg-light rounded h-100 p-4">
-                            <h6 class="mb-4">Coupons</h6>
-                            <div class="table-responsive">
+                            <table class="table" id="categorytable">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Image</th>
+                                        <th scope="col">Heading</th>
+                                        <th scope="col">Discription</th>
+                                        <th scope="col">Satus</th>
+                                        <th scope="col">Option</th>
+                                    </tr>
+                                </thead>
 
-                                <%
-                                     if(data.length > 0){
-                                %>
-                                   
-                                <table class="table">
-                                    <thead> 
-                                       <tr>
-                                           <th scope="col" class="text-center">#</th>
-                                           <th scope="col" class="text-center">Coupon Name</th>
-                                            <th scope="col" class="text-center">Amount</th>
-                                            <th scope="col" class="text-center">MinCart Amount</th>
-                                            <th scope="col" class="text-center">Expiry Date</th>
-                                            <th scope="col" class="text-center">Limit</th>
-                                            <th scope="col" class="text-center">Status</th>
-                                            <!-- <th scope="col" class="text-center">Option</th> -->
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        
-                                        <%data.forEach(function(coupon,index){%>
+                                <tbody>
+                                    <% data.forEach((value,index)=>{ %>
                                         <tr>
-                                            <td class="text-center"><%= index+1%></td>
-                                            <td class="text-center"><%=coupon.couponcode%></td>
-                                            <td  class="text-center"> <%=coupon.couponamount%></td>
-                                            <td class="text-center"><%=coupon.mincartamount%></td>
-                                            <td class="text-center"><%=coupon.expiredate.toISOString().substring(0,10)%></td>
-                                            <td class="text-center"><%=coupon.limit%></td>
-                                            <td class="text-center"><%=coupon.status%></td>
-                                            
-                                            <!-- <td class="text-center"><a href="/admin/deleteCoupon?code=<%=coupon.couponcode%>" class="fa fa-trash "  style="font-size:20px;color:rgb(235, 14, 14) ; text-decoration: none; background-color: rgba(240, 248, 255, 0); border: none;"></a> </td></td> -->
-                                           
+                                            <td><%= index+1 %></td>
+                                            <td><img src="/product_images/<%= value.image %>" width="288px" height="150px" alt="<%= value.image %>"></td>
+                                            <td><%= value.heading %></td>
+                                            <td><%= value.discription %></td>
+                                            <td><%= value.status %></td>
+                                            <% if(value.status==false){ %>
+                                                <td><a href="/admin/showBanner?id=<%= value._id %>"><button class="btn btn-success" onclick="return showconfirm(this)">show</button></a></td>
                                         </tr>
-                                        
-                                        <%
-                                         })%>
-                                    </tbody>
-                                </table>
-                                
-                                <%
-                                }else{
-                                %>
-                                    <div><H3>Coupon Empty</H3></div>
-                                <%
-                                }
-                                %>
-                            </div>
+
+                                            <% }else{ %>
+                                            <td><a href="/admin/showBanner?id=<%= value._id %>"><button class="btn btn-danger" onclick="return hideconfirm(this)">hide</button></a></td>
+                                            </tr>
+                                            <% } %>
+                                    <% })%>
+                                </tbody>
+
+                            </table>
                         </div>
                     </div>
-                   
-                    
                 </div>
+                <!-- Table End -->
             </div>
-            <!-- Table End -->
 
 
            
@@ -185,6 +175,8 @@
     <script src="/admin_assets/lib/tempusdominus/js/moment.min.js"></script>
     <script src="/admin_assets/lib/tempusdominus/js/moment-timezone.min.js"></script>
     <script src="/admin_assets/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Template Javascript -->
     <script src="/admin_assets/js/main.js"></script>
