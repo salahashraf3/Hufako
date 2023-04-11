@@ -695,6 +695,37 @@ const getUserProfile = async (req, res) => {
   }
 };
 
+// getOrder
+const getOrder = async (req,res) => {
+  try {
+    if(req.session.user){
+      let userData = await User.findOne({ name: req.session.name });
+      const orderData = await Order.find({user: userData._id})
+      res.render("user/order" ,{user: req.session.name , data: orderData })
+    }else{
+      res.redirect("/login");
+    }
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
+//singleOrder 
+const singleOrder = async (req, res) => {
+  try {
+    if(req.session.user){
+      const id = req.query.id
+      const orderData = await Order.findById(id).populate('product.productId')
+      console.log(orderData);
+      res.render("user/single_order", {data: orderData.product})
+    }else{
+      res.redirect("/login");
+    }
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
 module.exports = {
   getHome,
   getLogin,
@@ -719,4 +750,6 @@ module.exports = {
   applycoupon,
   getUserProfile,
   verifyPayment,
+  getOrder,
+  singleOrder,
 };

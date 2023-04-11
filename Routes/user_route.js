@@ -66,6 +66,13 @@ user_route.get('/getUserProfile',user_controller.getUserProfile)
 //razorpayVerifyPAyment
 user_route.post('/verifyPayment',user_controller.verifyPayment)
 
+//order history
+user_route.get('/order',user_controller.getOrder)
+user_route.get('/singleOrder',user_controller.singleOrder)
+
+
+
+
 
 //logout
 user_route.get('/logout',user_controller.getLogout)

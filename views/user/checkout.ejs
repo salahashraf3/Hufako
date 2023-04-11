@@ -72,8 +72,8 @@
             <a href="/getUserProfile" class="nav-link">About</a>
           </li>
           <li class="nav-item">
-            <a href="blog.html" class="nav-link">Blog</a>
-          </li>
+            <a href="/order" class="nav-link">Order</a>
+            </li>
           <li class="nav-item">
             <a href="contact.html" class="nav-link">Contact</a>
           </li>
@@ -348,6 +348,7 @@
                   <h3 class="billing-heading mb-4">Cart Total</h3>
                   <p class="d-flex">
                     <span>Subtotal</span>
+                    $
                     <span id="total">
                       <%= total%>
                     </span>
@@ -361,8 +362,9 @@
                     <span id="coupondiscount">$0.00</span>
                   </p>
                   <hr />
-                  <p class="d-flex total-price">
+                  <p class="d-flex ">
                     <span>Total</span>
+                    $
                     <span id="total-amount">
                       <%=total%>
                     </span>

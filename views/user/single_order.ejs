@@ -67,6 +67,18 @@
 		
 
 	</script>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.13.2/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.2/css/jquery.dataTables.min.css">
+
+
+    <script type="text/javascript" charset="utf8"
+        src="https://cdn.datatables.net/1.13.2/js/jquery.dataTables.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#categorytable').DataTable();
+        });
+    </script>
     
   </head>
   <body class="goto-here">
@@ -118,103 +130,41 @@
       <div class="container">
         <div class="row no-gutters slider-text align-items-center justify-content-center">
           <div class="col-md-9 ftco-animate text-center">
-          	<p class="breadcrumbs"><span class="mr-2"><a href="/">Home</a></span> <span>Cart</span></p>
-            <h1 class="mb-0 bread">Cart</h1>
+          	<p class="breadcrumbs"><span class="mr-2"><a href="/">Home</a></span> <span>Orders</span></p>
+            <h1 class="mb-0 bread">Orders</h1>
           </div>
         </div>
       </div>
     </div>
 
-    <section class="ftco-section ftco-cart">
-			<div class="container">
-				<div class="row">
-    			<div class="col-md-12 ftco-animate">
-					<div class="cart-list">
-						<%
-						if(typeof data2 == 'undefined'){
-							%>
-							<table class="table">
-								<thead class="thead-primary">
-									<tr class="text-center">
-										<th>&nbsp;</th>
-										<th>&nbsp;</th>
-										<th>Product</th>
-										<th>Price</th>
-										<th>Quantity</th>
-										
-									</tr>
-								</thead>
-								<tbody>
-									<%
-									data.forEach(function(product,index){
-										%>
 
-										<tr class="text-center">
-											<td class="product-remove"><a id="delete" onclick="deleteCart('<%= product.productId._id%>')" ><span class="ion-ios-close"></span></a></td>
-										
-											<td class="image-prod"><img src="<%= product.productId.image%>" style="width: 100px;" alt=""></td>
-											
-											<td class="product-name">
-												<h3><%= product.productId.productname%></h3>
-											<p><%= product.productId.description%></p>
-										</td>
-										
-										<td class="price">$<%= product.price%></td>
-										
-										<td class="quantity">
-											<div class="input-group mb-3">
-											 <input required type="text" id="<%= product.productId._id%>" name="quantity" class="quantity form-control input-number" value="<%= product.quantity%>" min="1" max="100" onchange="changeqty('<%=userId%>','<%= product.productId._id%>')">
-											</div>
-										</td>
-										
-										
-									</tr><!-- END TR-->
-									
-									<!-- END TR-->
-										<%
-									})
-									%>
-							</tbody>
-						</table>
-						
-					</div>
-    			</div>
-    		</div>
-    		<div class="row justify-content-start">
-    			<div class="col col-lg-5 col-md-6 mt-5 cart-wrap ftco-animate">
-    				<div class="cart-total mb-3">
-    					<h3>Cart Totals</h3>
-    					<p class="d-flex">
-    						<span>Subtotal</span>
-    						<span>$<%= total%></span>
-    					</p>
-    					<p class="d-flex">
-    						<span>Delivery</span>
-    						<span>$0.00</span>
-    					</p>
-    					<p class="d-flex">
-    						<span>Discount</span>
-    						<span>$0.00</span>
-    					</p>
-    					<hr>
-    					<p class="d-flex total-price">
-    						<span>Total</span>
-    						<span >$<%= total%></span>
-    					</p>
-    				</div>
-    				<p class="text-center"><a href="/checkout" class="btn btn-primary py-3 px-4">Proceed to Checkout</a></p>
-    			</div>
-				<%
-					}else{
-						%>
-						<span>Cart is Empty</span>
-							
-							<%
-						}
-						%>
-    		</div>
-			</div>
-		</section>
+
+
+    <section class="contact spad">
+        <div class="container">
+            <div class="row">
+                <% data.forEach((value,index) => { %>
+                <div class="col-sm-12 col-xl-4 mb-4">
+                    <div class="bg-light rounded h-100 p-4">
+                        <h6 class="mb-4">Product <%= index+1 %></h6>
+                       
+                            <div class="testimonial-item text-center">
+                                <img class="img-fluid rounded-circle mx-auto mb-4" src="<%= value.productId.image %>" style="width: 100px; height: 100px;">
+                                <h5 class="mb-1"><%= value.productId.productname %></h5>
+                                <p class="mb-0"><b>Quantity :<%= value.quantity %></b></p>
+                                <p class="mb-0"><b>Total Amount :<%= value.productId.price * value.quantity %></b></p>
+                                <p class="mb-0"> <%= value.productId.description %></p>
+                            </div>
+                        
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+        </div>
+    </section>
+
+
+    
 		
 
     <footer class="ftco-footer ftco-section">
@@ -305,56 +255,10 @@
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
   <script src="js/google-map.js"></script>
   <script src="js/main.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
   <script src="../../public/test_script.js"></script>
-  <script>
-	
-	function deleteCart(id){
-			$.ajax({
-				url:"/deleteCart",
-				method:"post",
-				encoded:true,
-				data:{
-					id:id
-				}
-			}).done((data)=>{
-				console.log(data);
-				if(data.success === true){
-					window.location.reload()
-				}
-			})
-		}
-
-		
-  </script>
-  <script>
-	function changeqty(userId,productId,price){
-			const priced = price
-			const value = parseInt(document.getElementById(productId).value)
-			if(value < 0){
-				alert("Please enter a positive number")
-			}else{
-
-				$.ajax({
-				  url:'/changeQty',
-				  data:{
-					user:userId,
-					product:productId,
-					value: value,
-				  },
-				  method:'post',
-				  encoded:true,
-				}).done((data) => {
-					if(data.success){
-						location.reload()
-					}else{
-						swal("Oops!", "Out of stock", "error");
-					}
-				})
-			}
-		}
-  </script>
 
  
   </body>
