@@ -716,11 +716,24 @@ const singleOrder = async (req, res) => {
     if(req.session.user){
       const id = req.query.id
       const orderData = await Order.findById(id).populate('product.productId')
-      console.log(orderData);
       res.render("user/single_order", {data: orderData.product})
     }else{
       res.redirect("/login");
     }
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
+//getSales Report
+const getSalesReport = async (req, res) => {
+  try {
+    const orderData = await Order.find({status:{$ne:"cancelled"}})
+    let SubTotal = 0
+    orderData.forEach(function(value){
+      SubTotal = SubTotal+value.totalAmount;
+    })
+    res.render("admin/sales_report" ,{data: orderData, total: SubTotal})
   } catch (error) {
     console.log(error.message);
   }
@@ -752,4 +765,5 @@ module.exports = {
   verifyPayment,
   getOrder,
   singleOrder,
+  getSalesReport,
 };

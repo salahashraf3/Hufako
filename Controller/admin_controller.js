@@ -8,15 +8,43 @@ const Order = require("../Model/order_model")
 const path = require("path");
 const sharp = require("sharp");
 const fs = require("fs");
-const imgurUploader = require("imgur-uploader");
+const imgurUploader = require("imgur-uploader")
+const puppeteer = require('puppeteer');
 
 //password Hash
 const {securePassword} = require('../Config');
 const { log } = require("console");
 
 //admin dashboard
-const getAdmin = (req, res) => {
-  res.render("admin/admin_home");
+const getAdmin = async (req, res) => {
+  const orderData = await Order.find({status: {$ne: "cancelled"}})
+  let SubTotal =0
+  orderData.forEach(function(value){
+    SubTotal = SubTotal+value.totalAmount;
+  })
+
+  const cod = await Order.find({paymentMethod: "cod"}).count()
+  const online = await Order.find({paymentMethod: "online"}).count()
+  const totalOrder = await Order.find({status: {$ne: "cancelled"}}).count()
+  const totalUser = await User.find().count()
+  const totalProducts = await Product.find().count()
+  
+  
+  const data = await Order.find({$and: [{totalAmount: 1100},{status: 'Shipped'}]})
+  const date = data[0 ].Date.toISOString().substring(8,10)
+
+  const today = new Date()
+  const todayDate = today.toISOString().substring(8,10)
+  
+  
+  
+
+  console.log(typeof date , date);
+  console.log(typeof todayDate , todayDate);
+  
+  
+  
+  res.render("admin/admin_home" ,{data:orderData , total: SubTotal , cod , online ,totalOrder ,totalUser , totalProducts});
 };
 
 //get admin login
@@ -465,11 +493,45 @@ const unlistBanner = async (req,res) => {
 const getOrder = async (req,res) => {
   try {
     const orderData = await Order.find()
-    res.render("admin/order" ,{data: orderData});
+    let SubTotal = 0
+    orderData.forEach(function(value){
+      SubTotal = SubTotal+value.totalAmount;
+    })
+    res.render("admin/order" ,{data: orderData , total: SubTotal});
   } catch (error) {
     console.log(error.message);
   }
 }
+//report download
+const report = async (req,res) => {
+  try {
+    const browser = await puppeteer.launch()
+    const page = await browser.newPage()
+    await page.goto('http://localhost:3000/salesReport' , {
+      waitUntil:"networkidle2"
+    })
+    await page.setViewport({width: 1680 , height: 1050})
+    const todayDate = new Date()
+    const pdfn = await page.pdf({
+      path: `${path.join(__dirname,'../public/files', todayDate.getTime()+".pdf")}`,
+      format: "A4"
+    })
+
+    await browser.close()
+    
+    const pdfUrl = path.join(__dirname,'../public/files', todayDate.getTime()+".pdf")
+
+    res.set({
+      "Content-Type":"application/pdf",
+      "Content-Length":pdfn.length
+    })
+    res.sendFile(pdfUrl)
+
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
 //viewSingleOrder
 const viewOrder = async (req,res) => {
   try {
@@ -530,4 +592,5 @@ module.exports = {
   getOrder,
   viewOrder,
   updateStatus,
+  report,
 };

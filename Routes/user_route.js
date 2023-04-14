@@ -71,7 +71,9 @@ user_route.get('/order',user_controller.getOrder)
 user_route.get('/singleOrder',user_controller.singleOrder)
 
 
+//sales Report \
 
+user_route.get("/salesReport",user_controller.getSalesReport)
 
 
 //logout

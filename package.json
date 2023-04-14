@@ -22,6 +22,7 @@
     "mongoose": "^7.0.2",
     "multer": "^1.4.5-lts.1",
     "nocache": "^3.0.4",
+    "puppeteer": "^19.8.5",
     "razorpay": "^2.8.6",
     "sharp": "^0.32.0",
     "simple-image-cdn": "^0.0.7",

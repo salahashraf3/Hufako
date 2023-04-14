@@ -88,6 +88,9 @@ admin_route.get('/showBanner',session.logged,adminController.unlistBanner)
 admin_route.get("/order",session.logged,adminController.getOrder)
 admin_route.get('/singleOrder',session.logged,adminController.viewOrder)
 
+//sales
+admin_route.get("/report",adminController.report)
+
 //updateStatus
 admin_route.post("/updateStatus",session.logged,adminController.updateStatus)
 
