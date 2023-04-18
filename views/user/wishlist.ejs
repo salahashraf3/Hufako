@@ -67,18 +67,6 @@
 		
 
 	</script>
-    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
-    <script src="https://cdn.datatables.net/1.13.2/js/jquery.dataTables.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.2/css/jquery.dataTables.min.css">
-
-
-    <script type="text/javascript" charset="utf8"
-        src="https://cdn.datatables.net/1.13.2/js/jquery.dataTables.js"></script>
-    <script>
-        $(document).ready(function () {
-            $('#categorytable').DataTable();
-        });
-    </script>
     
   </head>
   <body class="goto-here">
@@ -135,92 +123,63 @@
       <div class="container">
         <div class="row no-gutters slider-text align-items-center justify-content-center">
           <div class="col-md-9 ftco-animate text-center">
-          	<p class="breadcrumbs"><span class="mr-2"><a href="/">Home</a></span> <span>Orders</span></p>
-            <h1 class="mb-0 bread">Orders</h1>
+          	<p class="breadcrumbs"><span class="mr-2"><a href="/">Home</a></span> <span>Wishlist</span></p>
+            <h1 class="mb-0 bread">Wishlist</h1>
           </div>
         </div>
       </div>
     </div>
 
-
-
-
-    <div class="container-fluid pt-5 px-4">
-        <div class="row pt-4 g-4">
-            <div class="col-12">
-                <div class="bg-light rounded h-100 p-4">
-                    <table class="table" id="categorytable">
-                        <%
-                        if(typeof data !== null){
-                            %>
-
-
-
-                            <thead>
-                                <tr>
-                                    <th scope="col">#</th>
-                                    <th scope="col">Date</th>
-                                    <th scope="col">Total Amount</th>
-                                    <th scope="col">Method</th>
-                                    <th scope="col">status</th>
-                                    <th scope="col">View</th>
-                                    <th scope="col">Option</th>
-                                    
-                                </tr>
-                            </thead>
-    
-                            <tbody>
-                                <% data.reverse().forEach((value,index)=>{ %>
-                                    <tr>
-                                        <td><%= index+1 %></td>
-                                        <td><%= value.Date.toISOString().substring(0,10) %></td>
-                                        
-                                        <td><%= value.totalAmount %></td>
-                                        <td><%= value.paymentMethod %></td>
-                                        <td><%= value.status %></td>
-                                        
-                                        
-                                        <td><a href="/singleOrder?id=<%= value._id %>"><button class="btn btn-primary">view</button></a></td>
-                                        <%if(value.status == 'Delivered'){
-                                          %>
-
-                                          <td><a href="/returnOrder?id=<%= value._id %>" onclick="return confirm('Do you want to return this product?')"><button class="btn btn-success">Return</button></a></td>
-                                          <%
-                                        }else if( value.status  == "placed" || value.status == "Shipped" ){ %>
-                                          <td><a href="/cancelOrder?id=<%= value._id %>" onclick="return confirm('Do you want to cancel this product?')" ><button class="btn btn-danger">Cancel</button></a></td>
-                                          
-                                          <%}else if(value.status == "cancelled" || value.status == "returned"){ %>
+    <section class="ftco-section ftco-cart">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 ftco-animate">
+                    <div class="cart-list">
+                        <% if(typeof data2 == 'undefined'){%>
+                            
+                            <table class="table">
+                                <thead class="thead-primary">
+                                    <tr class="text-center">
+                                        <th>Product</th>
+                                        <th></th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% data.forEach((value)=>{%>
+                                        <tr class="text-center">
+                                            <td class="product__cart__item">
+                                                <div class="product__cart__item__pic">
+                                                    <img src="<%= value.productId.image %>" style="width: 100px;" alt="">
+                                                </div>
+                                                <div class="product__cart__item__text">
+                                                    <h6><%= value.productId.name %></h6>
+                                                    <h5>$<%= value.productId.price %></h5>
+                                                </div>
+                                            </td>
+                                            <td >
+                                                <button onclick="addtoCart('<%= value.productId._id %>') " class="product-remove btn p-2 btn-primary">+ Add To Cart</button>
+                                            </td>
                                             
-                                          <%} %>
-                                        
-                                <% })%>
-                            </tbody>
-
-
-
-                            <%
-                        }else{
-                            %>
+                                            <!-- <td class="cart__close">
+                                                <a onclick="deleteitem('<%= value.productId._id %>')">X</a></td> -->
+                                                 
+                                        </tr>
+                                    <%}) %>
+                                </tbody>
+                            </table>
                             
                             
-                            <h2>Order is Empty</h2>
-                            
-
-
-                            <%
-                        }%>
-                        
-
-                    </table>
+                        </div>
+                    </div>
+                    <%} else { %>
+                        <h3>Wish-List Empty</h1>
+                    <% }%>
+                    <div class="col-lg-4">  
                 </div>
             </div>
         </div>
-        <!-- Table End -->
-    </div>
-
-
-
-    
+    </section>
 		
 
     <footer class="ftco-footer ftco-section">
@@ -311,11 +270,78 @@
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
   <script src="js/google-map.js"></script>
   <script src="js/main.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
   <script src="../../public/test_script.js"></script>
-  
+  <script>
+	
+	function deleteCart(id){
+			$.ajax({
+				url:"/deleteCart",
+				method:"post",
+				encoded:true,
+				data:{
+					id:id
+				}
+			}).done((data)=>{
+				console.log(data);
+				if(data.success === true){
+					window.location.reload()
+				}
+			})
+		}
+
+		
+  </script>
+  <script>
+	function changeqty(userId,productId,price){
+			const priced = price
+			const value = parseInt(document.getElementById(productId).value)
+			if(value < 0){
+				alert("Please enter a positive number")
+			}else{
+
+				$.ajax({
+				  url:'/changeQty',
+				  data:{
+					user:userId,
+					product:productId,
+					value: value,
+				  },
+				  method:'post',
+				  encoded:true,
+				}).done((data) => {
+					if(data.success){
+						location.reload()
+					}else{
+						swal("Oops!", "Out of stock", "error");
+					}
+				})
+			}
+		}
+  </script>
+  <script>
+    function addtoCart(id) {
+      $.ajax({
+        url: "/addtoCart",
+        type: "POST",
+        encoded: true,
+        data: {
+          id: id,
+        },
+      }).done((data) => {
+        if (data.success) {
+          swal("Added", "Item added to cart", "success" );
+          
+  }
+  else{
+    swal("Oops!", "User not found. Please login.", "error");
+  }
+        
+      });
+    }
+  </script>
+
  
   </body>
 </html>

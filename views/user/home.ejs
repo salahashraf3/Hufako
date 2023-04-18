@@ -76,6 +76,11 @@
                 ><span class="icon-shopping_cart"></span
               ></a>
             </li>
+            <li class="nav-item cta cta-colored">
+              <a href="/wishlist" class="nav-link"
+                ><span class="icon-heart"></span
+              ></a>
+            </li>
             <% if(typeof user === 'undefined'){ %>
             <li class="nav-item dropdown">
               <a
@@ -278,6 +283,10 @@
                     class="add-to-cart text-center py-2 mr-1"
                     ><span>Add to cart <i class="ion-ios-add ml-1"></i></span
                   ></a>
+                  <a
+                    onclick="addToWishlist('<%= product._id%>')"
+                    class="add-to-cart text-center py-2 "
+                    > <i class="ion-ios-heart ml-1"></i></a>
                 </p>
               </div>
             </div>
@@ -631,6 +640,27 @@
           
         });
       }
+    </script>
+    <script>
+      function addToWishlist(id){
+            $.ajax({
+                url : '/add-to-wishlist',
+                method : 'post',
+                encoded : true,
+                data : {
+                    id : id
+                }
+            }).done((data) => {
+                if(data.success) {
+                    swal("Added!", "Item has been added to whislist!", "success");
+                }else if(data.already){
+                    swal("Oops!", "Already added", "error")
+                }else {
+                    swal("Oops!", "User not found. Please login.", "error")
+
+                }
+            })
+        }
     </script>
 
 

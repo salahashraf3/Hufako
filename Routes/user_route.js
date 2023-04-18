@@ -89,6 +89,10 @@ user_route.post('/checkWallet',user_controller.checkWallet)
 user_route.get('/logout',user_controller.getLogout)
 
 
+//add to wishlist 
+user_route.post('/add-to-wishlist',user_controller.addWishlist)
+user_route.get('/wishlist',user_controller.getWishlist)
+
 
 
 

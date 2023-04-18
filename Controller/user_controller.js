@@ -4,6 +4,7 @@ const Banner = require("../Model/banner_model")
 const Cart = require("../Model/cart_model");
 const Order = require("../Model/order_model");
 const Coupon = require("../Model/coupon_model");
+const WishList = require("../Model/wishlist_model")
 const { ObjectId } = require("mongodb")
 
 // twilio config
@@ -331,6 +332,9 @@ const addToCart = async (req, res) => {
               },
             }
           );
+          //remove from wishlist 
+          const wishlist = await WishList.findOneAndRemove({ "product.$.productId": productData._id });
+          console.log(wishlist);
         }
       } else {
         const data = new Cart({
@@ -525,15 +529,14 @@ const postPlaceOrder = async (req, res) => {
         product: product,
         wallet: wallet,
         totalBefore: totalBefore,
+        discount: 0,
         Date: new Date(),
       });
 
       await orderNew.save();
       let orderId = orderNew._id;
 
-      await User.findOneAndUpdate({name: req.session.name},{
-        wallet: 0
-      })
+      
       
       if (status == "placed") {
         const couponData = await Coupon.findById(req.session.couponId);
@@ -594,7 +597,7 @@ const verifyPayment = async (req, res) => {
       );
       hmac1 = hmac1.digest("hex");
 
-      if (hmac == details.payment.razorpay_signature) {
+      if (hmac1 == details.payment.razorpay_signature) {
 
         let orderReceipt = details.order.receipt
         let test1 = await Order.findByIdAndUpdate(
@@ -658,10 +661,14 @@ const applycoupon = async (req, res) => {
           if (couponData.limit != 0) {
             if (couponData.mincartamount <= amount) {
               let discountvalue = couponData.couponamount;
+              console.log(discountvalue);
 
               let distotal = Math.round(amount - discountvalue);
               let couponId = couponData._id;
               req.session.couponId = couponId;
+              
+
+            
 
               return res.json({
                 couponokey: true,
@@ -770,7 +777,7 @@ const returnOrder = async (req, res) => {
     if(req.session.user){
       const id = req.query.id
       const orderData = await Order.findById(id)
-      
+      if(orderData.paymentMethod == "cod" || orderData.paymentMethod == "online"){
         await User.findOneAndUpdate({name: req.session.name},{
           wallet: orderData.totalBefore
         })
@@ -783,7 +790,7 @@ const returnOrder = async (req, res) => {
         if(orderDataa){
           res.redirect("/order")
         }
-      
+      }
 
 
 
@@ -826,6 +833,81 @@ const checkWallet = async (req, res) => {
   }
 }
 
+//getWishlist
+const getWishlist = async (req, res) => {
+  try {
+    if(req.session.user){
+      const user = req.session.name
+        const userData = await User.findOne({name : req.session.name})
+        const data = await WishList.findOne({user : userData._id}).populate("product.productId")
+
+        if(data){
+            if(data.product != 0){
+                res.render('user/wishlist' , {user : user , data : data.product})
+            }else {
+                res.render('user/wishlist' , {user : user , data2 :'hi'})
+            }
+        }else {
+            res.render('user/wishlist' , {user : user , data2 :'hi'})
+
+        }
+
+    }else{
+      res.redirect("/login");
+    }
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
+const addWishlist = async (req,res) => {
+  try {
+    if(req.session.user){
+
+      const productId = req.body.id
+
+
+        const productData = await Product.findById(productId)
+        const userData = await User.findOne({name : req.session.name})
+        const alreadyWishlist = await WishList.findOne({user : new ObjectId(userData._id) })
+        if(alreadyWishlist){
+            const productExist = await alreadyWishlist.product.findIndex( product => product.productId == productId)
+            if(productExist != -1) {
+                res.json({already : true})
+            }else {
+                await WishList.findOneAndUpdate({user : userData._id},{$push : 
+                    {product:
+                        {
+                            productId : productId,
+                            name : productData.name,
+                            price : productData.price
+                        }
+                    }
+                })
+                res.json({success : true})
+            }
+        }else {
+            const data = new WishList({
+                user : userData._id,
+                product : [{
+                    productId : productId,
+                    name : productData.productname,
+                    price : productData.price
+                }]
+            })
+            await data.save()
+            res.json({success : true})
+        }
+
+
+    }else{
+      res.redirect("/login");
+    }
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
 module.exports = {
   getHome,
   getLogin,
@@ -856,4 +938,6 @@ module.exports = {
   cancelOrder,
   returnOrder,
   checkWallet,
+  getWishlist,
+  addWishlist,
 };
