@@ -75,6 +75,15 @@ user_route.get('/singleOrder',user_controller.singleOrder)
 
 user_route.get("/salesReport",user_controller.getSalesReport)
 
+//cancel Order
+user_route.get('/cancelOrder',user_controller.cancelOrder)
+
+//return Order
+user_route.get("/returnOrder",user_controller.returnOrder)
+
+//check Wallet
+user_route.post('/checkWallet',user_controller.checkWallet)
+
 
 //logout
 user_route.get('/logout',user_controller.getLogout)

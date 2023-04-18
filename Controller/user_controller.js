@@ -317,7 +317,7 @@ const addToCart = async (req, res) => {
         const productExist = await userCart.product.findIndex(
           (product) => product.productId == productId
         );
-        if (productExist != -1) {
+        if (productExist > 0) {
           await Cart.findOneAndUpdate(
             { user: userId, "product.productId": productId },
             { $inc: { "product.$.quantity": 1 } }
@@ -434,7 +434,7 @@ const checkout = async (req, res) => {
         const data = await User.findOne({
           name: req.session.name,
         });
-        res.render("user/checkout", { address: data.address, total: Total });
+        res.render("user/checkout", { address: data.address, total: Total ,wallet: data.wallet});
       }
     } else {
       res.redirect("/");
@@ -504,7 +504,7 @@ const deleteAddress = async (req, res) => {
 const postPlaceOrder = async (req, res) => {
   try {
     if (req.session.user) {
-      const { total, address, payment } = req.body;
+      const { total, address, payment ,wallet , totalBefore } = req.body;
       const user = await User.findOne({
         name: req.session.name,
       });
@@ -523,11 +523,17 @@ const postPlaceOrder = async (req, res) => {
         user: user._id,
         paymentMethod: payment,
         product: product,
+        wallet: wallet,
+        totalBefore: totalBefore,
         Date: new Date(),
       });
 
       await orderNew.save();
       let orderId = orderNew._id;
+
+      await User.findOneAndUpdate({name: req.session.name},{
+        wallet: 0
+      })
       
       if (status == "placed") {
         const couponData = await Coupon.findById(req.session.couponId);
@@ -540,7 +546,7 @@ const postPlaceOrder = async (req, res) => {
         await Cart.deleteOne({ user: user._id });
           for (i = 0; i < product.length; i++) {
             const productId = product[i].productId;
-            const quantity = Number(product[i].quantity);
+            const quantity = Number(product[i].quantity)
             await Product.findByIdAndUpdate(productId, {
               $inc: { stock: -quantity },
             });
@@ -580,6 +586,7 @@ const verifyPayment = async (req, res) => {
       const details = req.body;
       const crypto = require("crypto");
       let hmac1 = crypto.createHmac("sha256", process.env.RAZORPAY_API_SECRET);
+      console.log(hmac1);
       hmac1.update(
         details.payment.razorpay_order_id +
           "|" +
@@ -587,7 +594,7 @@ const verifyPayment = async (req, res) => {
       );
       hmac1 = hmac1.digest("hex");
 
-      if (hmac1 == details.payment.razorpay_signature) {
+      if (hmac == details.payment.razorpay_signature) {
 
         let orderReceipt = details.order.receipt
         let test1 = await Order.findByIdAndUpdate(
@@ -725,6 +732,69 @@ const singleOrder = async (req, res) => {
   }
 }
 
+//cancel Order
+const cancelOrder = async (req, res) => {
+  try {
+    if(req.session.user){
+      const id = req.query.id
+      const orderData = await Order.findById(id)
+      if(orderData.paymentMethod == "cod"){
+        await User.findOneAndUpdate({name: req.session.name},{
+          wallet: orderData.wallet
+        })
+        
+        const orderDataa= await Order.findByIdAndUpdate(id, {
+          status: "cancelled",
+          wallet: 0
+        })
+  
+        if(orderDataa){
+          res.redirect("/order")
+        }
+      }
+      
+      
+
+
+    }else{
+      res.redirect("/login");
+    }
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
+//rerturn order
+const returnOrder = async (req, res) => {
+  try {
+    if(req.session.user){
+      const id = req.query.id
+      const orderData = await Order.findById(id)
+      
+        await User.findOneAndUpdate({name: req.session.name},{
+          wallet: orderData.totalBefore
+        })
+        
+        const orderDataa= await Order.findByIdAndUpdate(id, {
+          status: "returned",
+          wallet: 0
+        })
+  
+        if(orderDataa){
+          res.redirect("/order")
+        }
+      
+
+
+
+    }else{
+      res.redirect("/login");
+    }
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
 //getSales Report
 const getSalesReport = async (req, res) => {
   try {
@@ -734,6 +804,23 @@ const getSalesReport = async (req, res) => {
       SubTotal = SubTotal+value.totalAmount;
     })
     res.render("admin/sales_report" ,{data: orderData, total: SubTotal})
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
+//checkWallet 
+const checkWallet = async (req, res) => {
+  try {
+    if(req.session.user){
+      const userData = await User.findOne({name: req.session.name})
+      const walleta = userData.wallet
+      if(walleta>0){
+        res.json({success: true ,walleta})
+      }
+    }else{
+      res.redirect("/login");
+    }
   } catch (error) {
     console.log(error.message);
   }
@@ -766,4 +853,7 @@ module.exports = {
   getOrder,
   singleOrder,
   getSalesReport,
+  cancelOrder,
+  returnOrder,
+  checkWallet,
 };

@@ -159,6 +159,7 @@
                                     <th scope="col">Method</th>
                                     <th scope="col">status</th>
                                     <th scope="col">View</th>
+                                    <th scope="col">Option</th>
                                     
                                 </tr>
                             </thead>
@@ -173,7 +174,19 @@
                                         <td><%= value.paymentMethod %></td>
                                         <td><%= value.status %></td>
                                         
+                                        
                                         <td><a href="/singleOrder?id=<%= value._id %>"><button class="btn btn-primary">view</button></a></td>
+                                        <%if(value.status == 'Delivered'){
+                                          %>
+
+                                          <td><a href="/returnOrder?id=<%= value._id %>" onclick="return confirm('Do you want to return this product?')"><button class="btn btn-success">Return</button></a></td>
+                                          <%
+                                        }else if( value.status  == "placed" || value.status == "Shipped" ){ %>
+                                          <td><a href="/cancelOrder?id=<%= value._id %>" onclick="return confirm('Do you want to cancel this product?')" ><button class="btn btn-danger">Cancel</button></a></td>
+                                          
+                                          <%}else if(value.status == "cancelled" || value.status == "returned"){ %>
+                                            
+                                          <%} %>
                                         
                                 <% })%>
                             </tbody>

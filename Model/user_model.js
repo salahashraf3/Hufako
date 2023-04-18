@@ -49,7 +49,11 @@ const usersSchema = mongoose.Schema({
                 required: true,
             }
         }
-    ]
+    ],
+    wallet: {
+        type: Number,
+        default: 0
+    }
 
 
 })

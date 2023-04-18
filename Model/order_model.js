@@ -35,6 +35,12 @@ const orderSchema = new mongoose.Schema({
     },
     status: {
         type: String,
+    },
+    wallet: {
+        type: Number
+    },
+    totalBefore: {
+        type: Number
     }
 },
   {

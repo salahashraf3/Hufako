@@ -270,7 +270,7 @@
                   >
                 </h3>
                 <div class="pricing">
-                  <p class="price"><span>$<%=product.price%></span></p>
+                  <p class="price"><span>₹<%=product.price%></span></p>
                 </div>
                 <p class="bottom-area d-flex px-3" style="cursor: pointer">
                   <a
@@ -622,7 +622,8 @@
           },
         }).done((data) => {
           if (data.success) {
-            swal("Added", "Item added to cart", "success");
+            swal("Added", "Item added to cart", "success" );
+            
 		}
 		else{
 			swal("Oops!", "User not found. Please login.", "error");

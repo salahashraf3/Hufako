@@ -348,23 +348,29 @@
                   <h3 class="billing-heading mb-4">Cart Total</h3>
                   <p class="d-flex">
                     <span>Subtotal</span>
-                    $
+                    ₹
                     <span id="total">
                       <%= total%>
                     </span>
                   </p>
                   <p class="d-flex">
                     <span>Delivery</span>
-                    <span>$0.00</span>
+                    <span>₹0.00</span>
+                  </p>
+                  <p class="d-flex">
+                    <span>Wallet</span>
+                    ₹
+                    <span id="wallet">0.00</span>
                   </p>
                   <p class="d-flex">
                     <span>Discount</span>
-                    <span id="coupondiscount">$0.00</span>
+                    ₹
+                    <span id="coupondiscount">0.00</span>
                   </p>
                   <hr />
                   <p class="d-flex ">
                     <span>Total</span>
-                    $
+                    ₹
                     <span id="total-amount">
                       <%=total%>
                     </span>
@@ -390,6 +396,18 @@
                       </div>
                     </div>
                   </div>
+                  <%if(wallet !== 0){
+                    %>
+                    <div class="form-group">
+                      <div class="col-md-12">
+                        <div class="radio " id="radio_div">
+                          <label><input type="checkbox" value="wallet" name="wallet" class="mr-2" onclick="checkWallet()"/>
+                            Wallet</label>
+                        </div>
+                      </div>
+                    </div>
+                    <%
+                  } %>
 
                   <p>
                     <button type="submit" class="btn btn-primary py-3 px-4">Place an order</button>
@@ -576,6 +594,8 @@
   </script>
   <script>
     $("#place-order").submit((e) => {
+      const allTotal = document.getElementById("total").innerHTML
+      const walletPlace = document.getElementById("wallet").innerHTML
       const amount = document.getElementById("total-amount").innerHTML
       const address = $("input[name=address]:checked").val()
       const paymentMethod = $("input[name=payment]:checked").val();
@@ -585,9 +605,11 @@
         url: "/place-order",
         method: 'post',
         data: {
+          totalBefore: allTotal,
           total: amount,
           address: address,
-          payment: paymentMethod
+          payment: paymentMethod,
+          wallet: walletPlace
         },
         success: (response) => {
           if (response.codSuccess == true) {
@@ -691,6 +713,33 @@
         }
       })
 
+    }
+  </script>
+
+  <script>
+    function checkWallet(){
+      let walletPlace = document.getElementById("wallet")
+      let amount = document.getElementById("total-amount").innerHTML
+      let totalAmount =document.getElementById("total-amount")
+      let radioDiv = document.getElementById("radio_div")
+      $.ajax({
+        url: '/checkWallet',
+        method: 'post',
+        success: (response) => {
+          if (response.success) {
+            console.log("success");
+              walletPlace.innerHTML = response.walleta
+             let test=  amount-response.walleta
+              totalAmount.innerHTML = test
+              radioDiv.classList.add("d-none");
+            
+            
+
+          }else{
+            console.log("fail");
+          }
+        }
+      })
     }
   </script>
 </body>
