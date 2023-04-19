@@ -536,6 +536,9 @@ const postPlaceOrder = async (req, res) => {
       await orderNew.save();
       let orderId = orderNew._id;
 
+      await User.findByIdAndUpdate(user._id, {
+        wallet:0
+      })
       
       
       if (status == "placed") {
@@ -908,6 +911,70 @@ const addWishlist = async (req,res) => {
   }
 }
 
+
+//addtocartwishlist
+const addToCartWishlist = async (req,res) => {
+  try {
+      if(req.session.user){
+          const productId = req.body.id
+          const userName = req.session.name
+          const userData = await User.findOne({name : userName})
+          const userId = userData._id
+          const productData = await Product.findById(productId)
+          const userCart = await Cart.findOne({user : userId})
+
+          if(userCart) {
+              const productExist = await userCart.product.findIndex( product => product.productId == productId)
+              if(productExist != -1){
+                  const cartData = await Cart.findOne(
+                      {user : userId, "product.productId" : productId},
+                      {"product.productId.$" : 1 , "product.quantity" : 1})
+  
+                  const [{quantity : quantity}] = cartData.product
+
+                  if(productData.stock <= quantity ){
+                      res.json({outofstock:true})
+                  }else {
+                      await Cart.findOneAndUpdate({user : userId, "product.productId" : productId},{$inc : {"product.$.quantity" : 1}})
+                      await WishList.findOneAndUpdate({"product.productId" : productId},{$pull : {product :{productId : productId}}})
+                      res.json({success : true})
+
+                  }
+              }else{
+                  if(productData.stock <= 0 ){
+                      res.json({outofstock:true})
+                  }else {
+                      await Cart.findOneAndUpdate({user : userId},{$push : {product:{productId : productId, price : productData.price}}})
+                      await WishList.findOneAndUpdate({"product.productId" : productId},{$pull : {product :{productId : productId}}})
+                      res.json({success : true})
+                  }
+              }
+              
+          }else{
+              if(productData.stock <= 0){
+                  res.json({outofstock:true})
+              }else{
+                  const data = new Cart({
+                      user : userId,
+                      product:[{productId : productId, price : productData.price}]
+                  })
+                  const result = await data.save()
+                  await WishList.findOneAndUpdate({"product.productId" : productId},{$pull : {product :{productId : productId}}})
+                  if(result){
+                      res.json({success:true})
+                  }
+              }
+          }
+      }else{
+          res.json({login : true})
+      }
+  } catch (error) {
+      console.log(error.message)
+      res.render('user/505');
+  }
+}
+
+
 module.exports = {
   getHome,
   getLogin,
@@ -940,4 +1007,5 @@ module.exports = {
   checkWallet,
   getWishlist,
   addWishlist,
+  addToCartWishlist,
 };

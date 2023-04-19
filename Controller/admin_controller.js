@@ -30,21 +30,56 @@ const getAdmin = async (req, res) => {
   const totalProducts = await Product.find().count()
   
   
-  const data = await Order.find({$and: [{totalAmount: 1100},{status: 'Shipped'}]})
-  const date = data[0 ].Date.toISOString().substring(8,10)
-
-  const today = new Date()
-  const todayDate = today.toISOString().substring(8,10)
+ 
   
   
   
 
-  console.log(typeof date , date);
-  console.log(typeof todayDate , todayDate);
+  
+  const date = new Date()
+  const year = date.getFullYear()
+  const currentYear = new Date(year,0,1)
+  
+  const salesByYear = await Order.aggregate([
+      {$match : {
+          createdAt :{$gte : currentYear},status:{$ne : "cancelled"}
+      }},
+      {$group : {
+          _id : {$dateToString : {format : "%m", date : "$createdAt"}},
+          total : {$sum : "$totalAmount"},
+          count : {$sum : 1}
+      }},
+      {$sort : {_id : 1}}
+  ])
+  
+  let sales = []
+  for (i = 1; i< 13; i++){
+      let result = true
+      for(j = 0; j < salesByYear.length; j++){
+          result = false 
+          if(salesByYear[j]._id == i){
+              sales.push(salesByYear[j])
+              break;
+          }else {
+              result = true
+              
+          }
+      }
+      if(result){
+          sales.push({_id : i, total : 0, count : 0})
+      }
+      
+  }
+ 
+  let yearChart = []
+  for(i = 0; i < sales.length; i++){
+      yearChart.push(sales[i].total)
+  }
+
+
   
   
-  
-  res.render("admin/admin_home" ,{data:orderData , total: SubTotal , cod , online ,totalOrder ,totalUser , totalProducts});
+  res.render("admin/admin_home" ,{data:orderData , total: SubTotal , cod , online ,totalOrder ,totalUser , totalProducts, yearChart});
 };
 
 //get admin login

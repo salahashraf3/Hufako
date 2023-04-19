@@ -210,7 +210,7 @@
 					</div>
 				  </div>
 				  <p>
-					<a href="cart.html" class="btn btn-black py-3 px-5 mr-2"
+					<a onclick="addtoCart('<%= product._id%>')" class="btn btn-black py-3 px-5 mr-2"
 					  >Add to Cart</a
 					>
 				  </p>
@@ -669,6 +669,28 @@
       });
   });
 
+    </script>
+    	<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+    <script>
+      function addtoCart(id) {
+        $.ajax({
+          url: "/addtoCart",
+          type: "POST",
+          encoded: true,
+          data: {
+            id: id,
+          },
+        }).done((data) => {
+          if (data.success) {
+            swal("Added", "Item added to cart", "success" );
+            
+		}
+		else{
+			swal("Oops!", "User not found. Please login.", "error");
+		}
+          
+        });
+      }
     </script>
   </body>
 </html>

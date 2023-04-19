@@ -158,7 +158,7 @@
                                                 </div>
                                             </td>
                                             <td >
-                                                <button onclick="addtoCart('<%= value.productId._id %>') " class="product-remove btn p-2 btn-primary">+ Add To Cart</button>
+                                                <button onclick="addToCart('<%= value.productId._id %>') " class="product-remove btn p-2 btn-primary">+ Add To Cart</button>
                                             </td>
                                             
                                             <!-- <td class="cart__close">
@@ -321,26 +321,28 @@
 		}
   </script>
   <script>
-    function addtoCart(id) {
-      $.ajax({
-        url: "/addtoCart",
-        type: "POST",
-        encoded: true,
-        data: {
-          id: id,
-        },
-      }).done((data) => {
-        if (data.success) {
-          swal("Added", "Item added to cart", "success" );
-          
-  }
-  else{
-    swal("Oops!", "User not found. Please login.", "error");
-  }
-        
-      });
-    }
-  </script>
+    function addToCart(id) {
+       console.log(id);
+           $.ajax({
+               
+             url: "/add-to-cart-wishlist",
+             method: "post",
+             encoded: true,
+             data: {
+               id: id,
+             },
+           }).done((data) => {
+             if (data.success) {
+               location.reload()
+             }else if(data.outofstock){
+         swal("Oops!", "Out of stock", "error")
+         }else{
+               swal("Oops!", "User not found. Please login.", "error")
+             }
+           });
+         }
+       
+</script>
 
  
   </body>
