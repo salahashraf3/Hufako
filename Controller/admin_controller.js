@@ -256,36 +256,26 @@ const addProduct = async (req, res) => {
     const category = await Category.find()
     res.render('admin/add_product' , {category: category , message: "Please upload an image"})
    }
-    let newImgArr = []
-    image.forEach(function (image, index) {
+    let newImgArr =  []
+    image.forEach(function async (image, index) {
       const imagePath = path.join(
         __dirname,
         `../public/product_images/${image}`
       );
       const img = fs.readFileSync(imagePath);
-      //resize the image
-      sharp(img)
-        .resize({ width: 350, height: 350, fit: sharp.fit.contain })
-        .toFormat("jpeg")
-        .flatten({ background: "#ffffff" })
-        .toFile(`output${index}.jpeg`)
-        .then(() => {
-          fs.unlinkSync(`${imagePath}`);
-          const newImagePath = path.join(__dirname, `../output${index}.jpeg`);
-          const newImage = fs.readFileSync(newImagePath);
-          //upload to cdn
-          imgurUploader(newImage, { title: "Hello!" }).then((data) => {
-            fs.unlinkSync(newImagePath)
-            console.log(data.link);
-            newImgArr.push(data.link)
-          });
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+
+      imgurUploader(img, { title: "Hello!" }).then((data) => {
+              fs.unlinkSync(imagePath)
+              newImgArr.push(data.link)
+            });
+
+      
+
+
+
     })
-    console.log(newImgArr);
-    setTimeout(()=>{
+
+    setTimeout(async()=>{
       const product =  new  Product({
         productname: name,
         image: newImgArr,
@@ -295,11 +285,12 @@ const addProduct = async (req, res) => {
         stock: stock,
         deleted: false,
     })
-    const result  =  product.save()
-    if(result){
-        res.redirect('/admin/products');
-    }
-    },2500)
+      await product.save()
+   
+    res.redirect('/admin/products');
+    },3000)
+
+
    
   } catch (error) {
     console.log(error.message);
@@ -327,68 +318,54 @@ const postEditProduct = async (req, res) => {
   try {
     const name = req.body.name;
     const id = req.body.id;
-   
+
+    
+    
     const image = [];
     for (i = 0; i < req.files.length; i++) {
       image[i] = req.files[i].filename;
     }
 
-
+    let newImgArr1 =[]
     if(image.length === 0){
-        console.log("no files");
         const data =await Product.findById(id)
         const category =await Category.find()
         res.render('admin/edit_product', {message: "please upload an image" ,product: data , category: category})
     }
-    // const product = await Product.findByIdAndUpdate(id, {
-    //   productname: name,
-    //   image: image,
-    //   description: req.body.description,
-    //   category: req.body.category,
-    //   price: req.body.price,
-    //   stock: req.body.stock,
-    //   deleted: false,
-    // });
 
-    // const result = await product.save();
-    // if (result) {
-    //   res.redirect("/admin/products");
-    // }
-    console.log("files exist");
     image.forEach(function (image, index) {
         const imagePath = path.join(
           __dirname,
           `../public/product_images/${image}`
         );
         const img = fs.readFileSync(imagePath);
-        //resize the image
-        sharp(img)
-          .resize({ width: 350, height: 350, fit: sharp.fit.contain })
-          .toFormat("jpeg")
-          .flatten({ background: "#ffffff" })
-          .toFile(`output${index}.jpeg`)
-          .then(() => {
-            fs.unlinkSync(`${imagePath}`);
-            const newImagePath = path.join(__dirname, `../output${index}.jpeg`);
-            const newImage = fs.readFileSync(newImagePath);
-            //upload to cdn
-            imgurUploader(newImage, { title: "Hello!" }).then((data) => {
-              fs.unlinkSync(newImagePath)
-             Product.findByIdAndUpdate(id,{
-                productname: name,
-                  image: data.link,
-                  description: req.body.description,
-                  category: req.body.category,
-                  price: req.body.price,
-                  stock: req.body.stock,
-                  deleted: false,
-              }).then(()=> res.redirect('/admin/products'))
-            });
-          })
-          .catch((error) => {
-            console.log(error);
-          });
+          //upload to cdn
+        imgurUploader(img, { title: "Hello!" }).then((data) => {
+          newImgArr1.push(data.link)
+          fs.unlinkSync(imagePath);
+         
+        });
       });
+
+
+
+      setTimeout(async ()=>{
+        await Product.findByIdAndUpdate(id,{
+          productname: name,
+            image: newImgArr1,
+            description: req.body.description,
+            category: req.body.category,
+            price: req.body.price,
+            stock: req.body.stock,
+            deleted: false,
+        })
+        res.redirect('/admin/products');
+      },3000)
+
+    
+        
+     
+     
     
 
   } catch (error) {

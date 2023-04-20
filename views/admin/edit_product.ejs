@@ -113,6 +113,7 @@
                                 <input type="String" class="form-control" name="name" value="<%=product.productname%>">
                                 <input type="hidden" value="<%=product._id%>" name="id">
                             </div>
+                            
                             <div class="mb-3">
                                 <label  class="form-label">Images</label>
                                 <input class="form-control" type="file" id="formFileMultiple" multiple name="images" accept="image/*" value="">
@@ -123,6 +124,16 @@
                                     <%
                                 }
                                 %>
+                            </div>
+                            <div class="mb-3 d-flex flex-column">
+                                <label  class="form-label">Image Preview</label>
+                                <div class="image-container">
+                                    <% product.image.forEach(function(value){
+                                        %>
+                                        <img src="<%=value%>" alt="preview image" width="100px">
+                                        <%
+                                    }) %>
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label  class="form-label">Description</label>
