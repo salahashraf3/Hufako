@@ -315,10 +315,10 @@ const addToCart = async (req, res) => {
       const productData = await Product.findById(productId);
       const userCart = await Cart.findOne({ user: userId });
       if (userCart) {
-        const productExist = await userCart.product.findIndex(
-          (product) => product.productId == productId
+        const productExist =  userCart.product.findIndex(
+          product => product.productId == productId
         );
-        if (productExist > 0) {
+        if (productExist != -1) {
           await Cart.findOneAndUpdate(
             { user: userId, "product.productId": productId },
             { $inc: { "product.$.quantity": 1 } }
