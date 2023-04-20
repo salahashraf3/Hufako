@@ -29,6 +29,7 @@ const getHome = async (req, res) => {
       res.render("user/home", { products: product, banner: bannerData });
     }
   } catch (error) {
+    res.redirect('/serverERR', {message: error.message})
     console.log(error.message);
   }
 };
@@ -38,6 +39,7 @@ const getLogin = (req, res) => {
   try {
     res.render("user/login");
   } catch (error) {
+    res.redirect('/serverERR', {message: error.message})
     console.log(error.message);
   }
 };
@@ -69,6 +71,7 @@ const postLogin = async (req, res) => {
       res.render("user/login", { message: "Entered email is incorrect" });
     }
   } catch (error) {
+    res.redirect('/serverERR', {message: error.message})
     console.log(error.message);
   }
 };
@@ -78,6 +81,7 @@ const getRegister = (req, res) => {
   try {
     res.render("user/register");
   } catch (error) {
+    res.redirect('/serverERR', {message: error.message})
     console.log(error.message);
   }
 };
@@ -115,6 +119,7 @@ const postRegister = async (req, res) => {
       }
     }
   } catch (error) {
+    res.redirect('/serverERR', {message: error.message})
     console.log(error.message);
   }
 };
@@ -146,6 +151,7 @@ const postOtp = async (req, res) => {
       res.render("user/otp", { message: "Otp validation failed" });
     }
   } catch (error) {
+    res.redirect('/serverERR', {message: error.message})
     console.log(error.messsage);
   }
 };
@@ -179,6 +185,7 @@ const postForget = async (req, res) => {
       });
     }
   } catch (error) {
+    res.redirect('/serverERR', {message: error.message})
     console.log(error.message);
   }
 };
@@ -212,6 +219,7 @@ const postForgetOTP = async (req, res) => {
       res.render("user/forget_otp", { message: "otp invalid" });
     }
   } catch (error) {
+    res.redirect('/serverERR', {message: error.message})
     console.log(error.message);
   }
 };
@@ -231,6 +239,7 @@ const getProduct = async (req, res) => {
       res.render("user/single_product", { product: data });
     }
   } catch (error) {
+    res.redirect('/serverERR', {message: error.message})
     console.log(error.message);
   }
 };
@@ -300,6 +309,7 @@ const getCart = async (req, res) => {
       res.redirect("/");
     }
   } catch (error) {
+    res.redirect('/serverERR', {message: error.message})
     console.log(error.message);
   }
 };
@@ -348,6 +358,7 @@ const addToCart = async (req, res) => {
       res.json({ success: false });
     }
   } catch (error) {
+    res.redirect('/serverERR', {message: error.message})
     console.log(error.message);
   }
 };
@@ -375,6 +386,7 @@ const changeQty = async (req, res) => {
       res.json({ success: false });
     }
   } catch (error) {
+    res.redirect('/serverERR', {message: error.message})
     console.log(error.message);
   }
 };
@@ -391,6 +403,7 @@ const deleteCart = async (req, res) => {
       res.json({ success: true });
     }
   } catch (error) {
+    res.redirect('/serverERR', {message: error.message})
     console.log(error.message);
   }
 };
@@ -444,6 +457,7 @@ const checkout = async (req, res) => {
       res.redirect("/");
     }
   } catch (error) {
+    res.redirect('/serverERR', {message: error.message})
     console.log(error.message);
   }
 };
@@ -475,6 +489,7 @@ const postAddress = async (req, res) => {
       res.redirect("/");
     }
   } catch (error) {
+    res.redirect('/serverERR', {message: error.message})
     console.log(error.message);
   }
 };
@@ -500,6 +515,7 @@ const deleteAddress = async (req, res) => {
       res.redirect("/");
     }
   } catch (error) {
+    res.redirect('/serverERR', {message: error.message})
     console.log(error.message);
   }
 };
@@ -577,6 +593,7 @@ const postPlaceOrder = async (req, res) => {
       res.redirect("/");
     }
   } catch (error) {
+    res.redirect('/serverERR', {message: error.message})
     console.log(error.message);
   }
 };
@@ -632,6 +649,7 @@ const verifyPayment = async (req, res) => {
       res.redirect("/login");
     }
   } catch (error) {
+    res.redirect('/serverERR', {message: error.message})
     console.log(error.message);
   }
 };
@@ -641,6 +659,7 @@ const getOrderPlaced = (req, res) => {
   try {
     res.render("user/order_placed");
   } catch (error) {
+    res.redirect('/serverERR', {message: error.message})
     console.log(error.message);
   }
 };
@@ -694,6 +713,7 @@ const applycoupon = async (req, res) => {
       }
     }
   } catch (error) {
+    res.redirect('/serverERR', {message: error.message})
     console.log(error.message);
   }
 };
@@ -708,6 +728,7 @@ const getUserProfile = async (req, res) => {
       res.redirect("/login");
     }
   } catch (error) {
+    res.redirect('/serverERR', {message: error.message})
     console.log(error.message);
   }
 };
@@ -723,6 +744,7 @@ const getOrder = async (req,res) => {
       res.redirect("/login");
     }
   } catch (error) {
+    res.redirect('/serverERR', {message: error.message})
     console.log(error.message);
   }
 }
@@ -733,11 +755,12 @@ const singleOrder = async (req, res) => {
     if(req.session.user){
       const id = req.query.id
       const orderData = await Order.findById(id).populate('product.productId')
-      res.render("user/single_order", {data: orderData.product})
+      res.render("user/single_order", {data: orderData.product ,orderData})
     }else{
       res.redirect("/login");
     }
   } catch (error) {
+    res.redirect('/serverERR', {message: error.message})
     console.log(error.message);
   }
 }
@@ -770,6 +793,7 @@ const cancelOrder = async (req, res) => {
       res.redirect("/login");
     }
   } catch (error) {
+    res.redirect('/serverERR', {message: error.message})
     console.log(error.message);
   }
 }
@@ -801,6 +825,7 @@ const returnOrder = async (req, res) => {
       res.redirect("/login");
     }
   } catch (error) {
+    res.redirect('/serverERR', {message: error.message})
     console.log(error.message);
   }
 }
@@ -808,13 +833,14 @@ const returnOrder = async (req, res) => {
 //getSales Report
 const getSalesReport = async (req, res) => {
   try {
-    const orderData = await Order.find({status:{$ne:"cancelled"}})
+    const orderData = await Order.find({status:{$eq:"Delivered"}})
     let SubTotal = 0
     orderData.forEach(function(value){
       SubTotal = SubTotal+value.totalAmount;
     })
     res.render("admin/sales_report" ,{data: orderData, total: SubTotal})
   } catch (error) {
+    res.redirect('/serverERR', {message: error.message})
     console.log(error.message);
   }
 }
@@ -832,6 +858,7 @@ const checkWallet = async (req, res) => {
       res.redirect("/login");
     }
   } catch (error) {
+    res.redirect('/serverERR', {message: error.message})
     console.log(error.message);
   }
 }
@@ -859,6 +886,7 @@ const getWishlist = async (req, res) => {
       res.redirect("/login");
     }
   } catch (error) {
+    res.redirect('/serverERR', {message: error.message})
     console.log(error.message);
   }
 }
@@ -907,6 +935,7 @@ const addWishlist = async (req,res) => {
       res.redirect("/login");
     }
   } catch (error) {
+    res.redirect('/serverERR', {message: error.message})
     console.log(error.message);
   }
 }
@@ -969,8 +998,8 @@ const addToCartWishlist = async (req,res) => {
           res.json({login : true})
       }
   } catch (error) {
+    res.redirect('/serverERR', {message: error.message})
       console.log(error.message)
-      res.render('user/505');
   }
 }
 

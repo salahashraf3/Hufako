@@ -142,19 +142,17 @@
       </div>
     </div>
 
-
-
-
-    <section class="contact spad m-4">
+    
+      <section class="contact spad m-4">
         <div class="container">
             <div class="row">
                 <% data.forEach((value,index) => { %>
-                <div class="col-sm-12 col-xl-4 mb-4">
+                <div class="col-6 col-xl-5 mb-4">
                     <div class="bg-light rounded h-100 p-4">
                         <h6 class="mb-4">Product <%= index+1 %></h6>
                        
                             <div class="testimonial-item text-center">
-                                <img class="img-fluid rounded-circle mx-auto mb-4" src="<%= value.productId.image %>" style="width: 100px; height: 100px;">
+                                <img class="img-fluid  mx-auto mb-4" src="<%= value.productId.image %>" style="width: 100px; height: 100px;">
                                 <h5 class="mb-1"><%= value.productId.productname %></h5>
                                 <p class="mb-0"><b>Quantity :<%= value.quantity %></b></p>
                                 <p class="mb-0"><b>Total Amount :<%= value.productId.price * value.quantity %></b></p>
@@ -164,10 +162,51 @@
                     </div>
                 </div>
                 <% }) %>
+
+
+                <div class="col-6 col-xl-5 mb-4 cart-wrap ftco-animate mx-4">
+                  <div class="cart-total mb-3">
+                 
+                    <p class="d-flex">
+                      <span>Subtotal</span>
+                      <span>₹<%= orderData.totalBefore%></span>
+                    </p>
+                    <p class="d-flex">
+                      <span>Delivery</span>
+                      <span>₹0.00</span>
+                    </p>
+                    <p class="d-flex">
+                      <span>Discount</span>
+                      <span>₹0.00</span>
+                    </p>
+                    <p class="d-flex">
+                      <span>Wallet</span>
+                      <span>₹<%= orderData.wallet%></span>
+                    </p>
+                    <hr>
+                    <p class="d-flex total-price">
+                      <span>Total</span>
+                      <span >₹<%= orderData.totalAmount%></span>
+                    </p>
+                  </div>
+                 
+                </div>
             </div>
         </div>
+
+
+        
     </section>
 
+    <section>
+      
+    </section>
+
+ 
+
+
+
+    
     <!-- <div class="container  d-flex ">
       <%data.forEach(function(value,index){%>
         <div class="card m-4" style="width: 18rem;">
