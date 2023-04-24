@@ -657,6 +657,25 @@
       }
       var rzp1 = new Razorpay(options);
       rzp1.open();
+      rzp1.on('payment.failed', function (response){
+        // alert(response.error.code);
+        // alert(response.error.description);
+        // alert(response.error.source);
+        // alert(response.error.step);
+        // alert(response.error.reason);
+        rzp1.close()
+        Swal.fire({
+            icon: 'error',
+            title: 'Payment has Failed',
+            showConfirmButton: false,
+            timer: 1500
+          })
+          setTimeout(()=>{
+            window.location.reload()
+          },1000)
+        // alert(response.error.metadata.order_id);
+        // alert(response.error.metadata.payment_id);
+});
     }
 
     function verifyPayment(payment,order){
@@ -679,7 +698,7 @@
           })
         }
       }
-     
+
     })
     }
 
@@ -737,8 +756,8 @@
              let test=  amount-response.walleta
               totalAmount.innerHTML = test
               radioDiv.classList.add("d-none");
-            
-            
+
+
 
           }else{
             console.log("fail");
