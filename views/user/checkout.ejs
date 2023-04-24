@@ -753,9 +753,16 @@
           if (response.success) {
             console.log("success");
               walletPlace.innerHTML = response.walleta
-             let test=  amount-response.walleta
-              totalAmount.innerHTML = test
+              let test=  amount-response.walleta
+              if(test < 0 ){
+                totalAmount.innerHTML = 10 
+                radioDiv.innerHTML = "You have pay minimum ₹10"
+              }else{
+                totalAmount.innerHTML = test
               radioDiv.classList.add("d-none");
+              }
+             
+                
 
 
 

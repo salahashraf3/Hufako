@@ -806,7 +806,7 @@ const returnOrder = async (req, res) => {
       const orderData = await Order.findById(id)
       if(orderData.paymentMethod == "cod" || orderData.paymentMethod == "online"){
         await User.findOneAndUpdate({name: req.session.name},{
-          wallet: orderData.totalBefore
+          $inc : {wallet: +orderData.totalBefore}
         })
         
         const orderDataa= await Order.findByIdAndUpdate(id, {
