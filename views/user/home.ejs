@@ -537,12 +537,12 @@
     <script>
       function addToWishlist(id){
             $.ajax({
-                url : "/wishlist",
-                method : "GET",
+                url : "/addtoWishlist",
+                method : "POST",
                 encoded : true,
-                // data : {
-                //     id : id
-                // }
+                data : {
+                    id : id
+                }
             }).done((data) => {
                 if(data.success) {
                     swal("Added!", "Item has been added to whislist!", "success");
