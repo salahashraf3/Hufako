@@ -778,7 +778,7 @@ const cancelOrder = async (req, res) => {
         
         const orderDataa= await Order.findByIdAndUpdate(id, {
           status: "cancelled",
-          wallet: 0
+          
         })
   
         if(orderDataa){
