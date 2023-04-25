@@ -519,7 +519,7 @@ const report = async (req,res) => {
   try {
     const browser = await puppeteer.launch()
     const page = await browser.newPage()
-    await page.goto('http://localhost:3000/salesReport' , {
+    await page.goto('https://arc018.com/' , {
       waitUntil:"networkidle2"
     })
     await page.setViewport({width: 1680 , height: 1050})
