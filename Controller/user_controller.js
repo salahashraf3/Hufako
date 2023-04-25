@@ -894,43 +894,41 @@ const getWishlist = async (req, res) => {
 const addWishlist = async (req,res) => {
   try {
     if(req.session.user){
-
-      res.redirect('/order-placed')
-
-      // const productId = req.body.id
+      
+      const productId = req.body.id
 
 
-      //   const productData = await Product.findById(productId)
-      //   const userData = await User.findOne({name : req.session.name})
-      //   const alreadyWishlist = await WishList.findOne({user : new ObjectId(userData._id) })
-      //   if(alreadyWishlist){
-      //       const productExist = await alreadyWishlist.product.findIndex( product => product.productId == productId)
-      //       if(productExist != -1) {
-      //           res.json({already : true})
-      //       }else {
-      //           await WishList.findOneAndUpdate({user : userData._id},{$push : 
-      //               {product:
-      //                   {
-      //                       productId : productId,
-      //                       name : productData.name,
-      //                       price : productData.price
-      //                   }
-      //               }
-      //           })
-      //           res.json({success : true})
-      //       }
-      //   }else {
-      //       const data = new WishList({
-      //           user : userData._id,
-      //           product : [{
-      //               productId : productId,
-      //               name : productData.productname,
-      //               price : productData.price
-      //           }]
-      //       })
-      //       await data.save()
-      //       res.json({success : true})
-      //   }
+        const productData = await Product.findById(productId)
+        const userData = await User.findOne({name : req.session.name})
+        const alreadyWishlist = await WishList.findOne({user : new ObjectId(userData._id) })
+        if(alreadyWishlist){
+            const productExist = await alreadyWishlist.product.findIndex( product => product.productId == productId)
+            if(productExist != -1) {
+                res.json({already : true})
+            }else {
+                await WishList.findOneAndUpdate({user : userData._id},{$push : 
+                    {product:
+                        {
+                            productId : productId,
+                            name : productData.name,
+                            price : productData.price
+                        }
+                    }
+                })
+                res.json({success : true})
+            }
+        }else {
+            const data = new WishList({
+                user : userData._id,
+                product : [{
+                    productId : productId,
+                    name : productData.productname,
+                    price : productData.price
+                }]
+            })
+            await data.save()
+            res.json({success : true})
+        }
 
 
     }else{
