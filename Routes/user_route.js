@@ -90,6 +90,7 @@ user_route.get('/logout',user_controller.getLogout)
 
 
 //add to wishlist 
+user_route.post('/add-to-wishlist',user_controller.addWishlist)
 user_route.post('/add-to-cart-wishlist',user_controller.addToCartWishlist)
 user_route.get('/wishlist',user_controller.getWishlist)
 

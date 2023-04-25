@@ -771,9 +771,9 @@ const cancelOrder = async (req, res) => {
     if(req.session.user){
       const id = req.query.id
       const orderData = await Order.findById(id)
-      if(orderData.paymentMethod == "cod"){
+      if(orderData.paymentMethod == "cod" || orderData.paymentMethod == "online"){
         await User.findOneAndUpdate({name: req.session.name},{
-          wallet: orderData.wallet
+          $inc : {wallet: +orderData.wallet}
         })
         
         const orderDataa= await Order.findByIdAndUpdate(id, {
