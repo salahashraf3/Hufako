@@ -771,7 +771,7 @@ const cancelOrder = async (req, res) => {
     if(req.session.user){
       const id = req.query.id
       const orderData = await Order.findById(id)
-      
+      if(orderData.paymentMethod == "cod" || orderData.paymentMethod == "online"){
         await User.findOneAndUpdate({name: req.session.name},{
           $inc : {wallet: +orderData.wallet}
         })
@@ -784,7 +784,7 @@ const cancelOrder = async (req, res) => {
         if(orderDataa){
           res.redirect("/order")
         }
-      
+      }
       
       
 
