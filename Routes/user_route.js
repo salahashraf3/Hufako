@@ -98,5 +98,7 @@ user_route.post('/addtoWishlists',user_controller.addWishlist)
 
 //getShop
 user_route.get('/getShop',user_controller.getShop)
+user_route.post('/getShop',user_controller.getShop)
+
 
 module.exports = user_route
