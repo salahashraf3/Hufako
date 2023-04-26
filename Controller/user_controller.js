@@ -547,6 +547,7 @@ const postPlaceOrder = async (req, res) => {
         totalBefore: totalBefore,
         discount: 0,
         Date: new Date(),
+        couponCode: "",
       });
 
       await orderNew.save();
@@ -564,6 +565,10 @@ const postPlaceOrder = async (req, res) => {
           await Coupon.findByIdAndUpdate(couponData._id, {
             limit: newLimit,
           });
+          await Order.findByIdAndUpdate(orderId,{
+            couponCode: couponData.couponcode,
+            discount: couponData.couponamount
+          })
         }
         await Cart.deleteOne({ user: user._id });
           for (i = 0; i < product.length; i++) {

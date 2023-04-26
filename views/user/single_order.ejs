@@ -164,7 +164,43 @@
                 <% }) %>
 
 
+                <!-- <div class="col-sm-12 col-md-6 col-xl-6">
+                  <div class="h-100 bg-light rounded p-4">
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                          <h5 class="mb-0">Delivery Address </h5>
+                      </div>
+                      <div class="d-flex align-items-center border-bottom py-3">
+                          <div class="row">
+                              
+                              <div class="col-12">
+                                  <h6>Id : <%= orderData._id %></h6>
+                              </div>
+                              <div class="col-12">
+                                  <h6>Payment Method : <%= orderData.paymentMethod %></h6>
+                              </div>
+                              <div class="col-12">
+                                  <h6>Address : <%= orderData.deliveryDetails %></h6>
+                              </div>
+                              
+                          </div>
+                      </div>
+                  </div>
+              </div> -->
+
+                
+
                 <div class="col-6 col-xl-5 mb-4 cart-wrap ftco-animate mx-4">
+
+                  <div class="cart-total mb-3">
+                    
+                    <h5 class="mb-3">Delivery Address </h5>
+                    <p class="d-flex">
+                      <span>Address: </span>
+                      <span><%= orderData.deliveryDetails%></span>
+                    </p>
+                    
+                  </div>
+
                   <div class="cart-total mb-3">
                  
                     <p class="d-flex">
@@ -177,7 +213,7 @@
                     </p>
                     <p class="d-flex">
                       <span>Discount</span>
-                      <span>₹0.00</span>
+                      <span>₹<%= orderData.discount%> (<%= orderData.couponCode%>)</span>
                     </p>
                     <p class="d-flex">
                       <span>Wallet</span>
@@ -189,8 +225,10 @@
                       <span >₹<%= orderData.totalAmount%></span>
                     </p>
                   </div>
+                  
                  
                 </div>
+
             </div>
         </div>
 
