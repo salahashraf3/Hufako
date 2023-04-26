@@ -303,21 +303,17 @@ const addProduct = async (req, res) => {
 const getEditProduct = async (req, res) => {
   try {
     const id = req.query.id;
-    const idLength = id.length;
-    if (idLength != 24) {
-      res.redirect("/IdMismatch");
-    } else {
+    
+   
       const product = await Product.findById(id);
       const category = await Category.find();
-      if (product == null) {
-        res.redirect("/IdMismatch");
-      }else{
+      
         res.render("admin/edit_product", {
           product: product,
           category: category,
         });
-      }
-    }
+      
+    
   } catch (error) {
     console.log(error.message);
   }
@@ -332,43 +328,55 @@ const postEditProduct = async (req, res) => {
     for (i = 0; i < req.files.length; i++) {
       image[i] = req.files[i].filename;
     }
-
+    
     let newImgArr1 = [];
-    if (image.length === 0) {
-      const data = await Product.findById(id);
+    const productData = await Product.findById(id)
+    productData.image.forEach((value)=>{
+      newImgArr1.push(value)
+    })
+    if (image.length != 0) {
+      
+
+      image.forEach(function (image, index) {
+        const imagePath = path.join(
+          __dirname,
+          `../public/product_images/${image}`
+        );
+        const img = fs.readFileSync(imagePath);
+        //upload to cdn
+        imgurUploader(img, { title: "Hello!" }).then((data) => {
+          newImgArr1.push(data.link);
+          fs.unlinkSync(imagePath);
+        });
+      });
+
+      setTimeout(async () => {
+        await Product.findByIdAndUpdate(id, {
+          productname: name,
+          image: newImgArr1,
+          description: req.body.description,
+          category: req.body.category,
+          price: req.body.price,
+          stock: req.body.stock,
+          deleted: false,
+        });
+        res.redirect("/admin/products");
+      }, 3000);
+
+
+    }else{
+       const data = await Product.findById(id);
       const category = await Category.find();
-      res.render("admin/edit_product", {
+       res.render("admin/edit_product", {
         message: "please upload an image",
         product: data,
         category: category,
       });
     }
 
-    image.forEach(function (image, index) {
-      const imagePath = path.join(
-        __dirname,
-        `../public/product_images/${image}`
-      );
-      const img = fs.readFileSync(imagePath);
-      //upload to cdn
-      imgurUploader(img, { title: "Hello!" }).then((data) => {
-        newImgArr1.push(data.link);
-        fs.unlinkSync(imagePath);
-      });
-    });
+    
 
-    setTimeout(async () => {
-      await Product.findByIdAndUpdate(id, {
-        productname: name,
-        image: newImgArr1,
-        description: req.body.description,
-        category: req.body.category,
-        price: req.body.price,
-        stock: req.body.stock,
-        deleted: false,
-      });
-      res.redirect("/admin/products");
-    }, 3000);
+    
   } catch (error) {
     console.log(error.messsage);
   }
@@ -597,6 +605,31 @@ const getSalesReport = async (req, res) => {
   }
 }
 
+//getImageDelete
+const getImageDelete = async (req, res) => {
+  try {
+
+    const imageIndex = req.body.index
+    const proId = req.body.proId
+    
+
+
+    await Product.updateOne({_id: proId},{
+      $unset: { [`image.${imageIndex}`]: ""}
+    })
+
+    const deletedImages = await Product.updateOne({_id: proId},{
+      $pull: { image: null}
+    })
+    
+    if(deletedImages){
+      res.json({remove: true})
+    }
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
 
 
 module.exports = {
@@ -634,4 +667,5 @@ module.exports = {
   updateStatus,
   report,
   getSalesReport,
+  getImageDelete
 };

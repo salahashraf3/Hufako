@@ -99,6 +99,9 @@ admin_route.post("/updateStatus",session.logged,adminController.updateStatus)
 admin_route.get("/SalesReport",session.logged,adminController.getSalesReport)
 
 
+//getImageDelete
+admin_route.post("/getImageDelete",session.logged,adminController.getImageDelete)
+
 
 //admin logout
 admin_route.get('/logout',adminController.adminLogout)
