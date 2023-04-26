@@ -16,6 +16,7 @@ const { securePassword } = require("../Config");
 
 //Razorpay
 const { instance } = require("../Config");
+const { log } = require("console");
 
 //get home page
 const getHome = async (req, res) => {
@@ -234,10 +235,27 @@ const getLogout = (req, res) => {
 const getProduct = async (req, res) => {
   try {
     const productId = req.query.id;
+    const productLength = productId.length
+    if(productLength != 24){
+      res.redirect("/IdMismatch")
+    }else{
+
     const data = await Product.findOne({ _id: productId });
-    if (data) {
+    
+
+    if(data == null ){
+    
+      res.redirect("/IdMismatch")
+    }
+    else{
       res.render("user/single_product", { product: data });
     }
+    }
+    
+
+    
+    
+    
   } catch (error) {
     res.redirect('/serverERR', {message: error.message})
     console.log(error.message);
@@ -500,17 +518,25 @@ const deleteAddress = async (req, res) => {
     if (req.session.user) {
       const userName = req.session.name;
       const id = req.query.id;
-      await User.updateOne(
-        { name: userName },
-        {
-          $pull: {
-            address: {
-              _id: id,
+      const idLength = id.length
+      if(idLength != 24){
+        res.redirect("/IdMismatch")
+      }else{
+        await User.updateOne(
+          { name: userName },
+          {
+            $pull: {
+              address: {
+                _id: id,
+              },
             },
-          },
-        }
-      );
-      res.redirect("/checkout");
+          }
+        );
+        res.redirect("/checkout");
+      }
+      
+
+      
     } else {
       res.redirect("/");
     }
@@ -759,8 +785,19 @@ const singleOrder = async (req, res) => {
   try {
     if(req.session.user){
       const id = req.query.id
-      const orderData = await Order.findById(id).populate('product.productId')
-      res.render("user/single_order", {data: orderData.product ,orderData})
+      const idLength = id.length
+      if(idLength != 24){
+        res.redirect("/IdMismatch")
+      }else{
+        
+        const orderData = await Order.findById(id).populate('product.productId')
+        if(orderData == null){
+          res.redirect("/IdMismatch")
+        }else{
+          res.render("user/single_order", {data: orderData.product ,orderData})
+        }
+      }
+     
     }else{
       res.redirect("/login");
     }
@@ -775,21 +812,32 @@ const cancelOrder = async (req, res) => {
   try {
     if(req.session.user){
       const id = req.query.id
-      const orderData = await Order.findById(id)
-      if(orderData.paymentMethod == "cod" || orderData.paymentMethod == "online"){
-        await User.findOneAndUpdate({name: req.session.name},{
-          $inc : {wallet: +orderData.wallet}
-        })
-        
-        const orderDataa= await Order.findByIdAndUpdate(id, {
-          status: "cancelled",
-          
-        })
-  
-        if(orderDataa){
-          res.redirect("/order")
+      const idLength = id.length
+      if(idLength != 24){
+        res.redirect("/IdMismatch")
+      }else{
+        const orderData = await Order.findById(id)
+        if(orderData == null){
+          res.redirect("/IdMismatch")
+        }else{
+          if(orderData.paymentMethod == "cod" || orderData.paymentMethod == "online"){
+            await User.findOneAndUpdate({name: req.session.name},{
+              $inc : {wallet: +orderData.wallet}
+            })
+            
+            const orderDataa= await Order.findByIdAndUpdate(id, {
+              status: "cancelled",
+              
+            })
+      
+            if(orderDataa){
+              res.redirect("/order")
+            }
+          }
         }
+      
       }
+      
       
       
 

@@ -2,84 +2,86 @@ const User = require("../Model/user_model");
 const bcrypt = require("bcrypt");
 const Category = require("../Model/category_model");
 const Product = require("../Model/product_model");
-const Coupon =  require("../Model/coupon_model")
-const Banner = require('../Model/banner_model')
-const Order = require("../Model/order_model")
+const Coupon = require("../Model/coupon_model");
+const Banner = require("../Model/banner_model");
+const Order = require("../Model/order_model");
 const path = require("path");
 const sharp = require("sharp");
 const fs = require("fs");
-const imgurUploader = require("imgur-uploader")
-const puppeteer = require('puppeteer');
+const imgurUploader = require("imgur-uploader");
+const puppeteer = require("puppeteer");
 
 //password Hash
-const {securePassword} = require('../Config');
+const { securePassword } = require("../Config");
 const { log } = require("console");
 
 //admin dashboard
 const getAdmin = async (req, res) => {
-  const orderData = await Order.find({status: {$ne: "cancelled"}})
-  let SubTotal =0
-  orderData.forEach(function(value){
-    SubTotal = SubTotal+value.totalAmount;
-  })
+  const orderData = await Order.find({ status: { $ne: "cancelled" } });
+  let SubTotal = 0;
+  orderData.forEach(function (value) {
+    SubTotal = SubTotal + value.totalAmount;
+  });
 
-  const cod = await Order.find({paymentMethod: "cod"}).count()
-  const online = await Order.find({paymentMethod: "online"}).count()
-  const totalOrder = await Order.find({status: {$ne: "cancelled"}}).count()
-  const totalUser = await User.find().count()
-  const totalProducts = await Product.find().count()
-  
-  
- 
-  
-  
-  
+  const cod = await Order.find({ paymentMethod: "cod" }).count();
+  const online = await Order.find({ paymentMethod: "online" }).count();
+  const totalOrder = await Order.find({ status: { $ne: "cancelled" } }).count();
+  const totalUser = await User.find().count();
+  const totalProducts = await Product.find().count();
 
-  
-  const date = new Date()
-  const year = date.getFullYear()
-  const currentYear = new Date(year,0,1)
-  
+  const date = new Date();
+  const year = date.getFullYear();
+  const currentYear = new Date(year, 0, 1);
+
   const salesByYear = await Order.aggregate([
-      {$match : {
-          createdAt :{$gte : currentYear},status:{$ne : "cancelled"}
-      }},
-      {$group : {
-          _id : {$dateToString : {format : "%m", date : "$createdAt"}},
-          total : {$sum : "$totalAmount"},
-          count : {$sum : 1}
-      }},
-      {$sort : {_id : 1}}
-  ])
-  
-  let sales = []
-  for (i = 1; i< 13; i++){
-      let result = true
-      for(j = 0; j < salesByYear.length; j++){
-          result = false 
-          if(salesByYear[j]._id == i){
-              sales.push(salesByYear[j])
-              break;
-          }else {
-              result = true
-              
-          }
+    {
+      $match: {
+        createdAt: { $gte: currentYear },
+        status: { $ne: "cancelled" },
+      },
+    },
+    {
+      $group: {
+        _id: { $dateToString: { format: "%m", date: "$createdAt" } },
+        total: { $sum: "$totalAmount" },
+        count: { $sum: 1 },
+      },
+    },
+    { $sort: { _id: 1 } },
+  ]);
+
+  let sales = [];
+  for (i = 1; i < 13; i++) {
+    let result = true;
+    for (j = 0; j < salesByYear.length; j++) {
+      result = false;
+      if (salesByYear[j]._id == i) {
+        sales.push(salesByYear[j]);
+        break;
+      } else {
+        result = true;
       }
-      if(result){
-          sales.push({_id : i, total : 0, count : 0})
-      }
-      
-  }
- 
-  let yearChart = []
-  for(i = 0; i < sales.length; i++){
-      yearChart.push(sales[i].total)
+    }
+    if (result) {
+      sales.push({ _id: i, total: 0, count: 0 });
+    }
   }
 
+  let yearChart = [];
+  for (i = 0; i < sales.length; i++) {
+    yearChart.push(sales[i].total);
+  }
 
-  
-  
-  res.render("admin/admin_home" ,{data:orderData , total: SubTotal , cod , online ,totalOrder ,totalUser , totalProducts, yearChart});
+  res.render("admin/admin_home", {
+    data: orderData,
+    total: SubTotal,
+    cod,
+    online,
+    totalOrder,
+    totalUser,
+    totalProducts,
+    yearChart,
+  });
 };
 
 //get admin login
@@ -146,9 +148,16 @@ const postAddUser = async (req, res) => {
 //edit user get
 const getEditUser = async (req, res) => {
   const id = req.query.id;
-  const data = await User.findOne({ _id: id });
-  if (data) {
-    res.render("admin/edit_user", { user: data });
+  const idLength = id.length;
+  if (idLength != 24) {
+    res.redirect("/IdMismatch");
+  } else {
+    const data = await User.findOne({ _id: id });
+    if (data == null) {
+      res.redirect("/IdMismatch");
+    } else {
+      res.render("admin/edit_user", { user: data });
+    }
   }
 };
 
@@ -191,13 +200,15 @@ const getAddCategory = async (req, res) => {
 //post add category
 const postAddCategory = async (req, res) => {
   try {
-    
-
     const Name = req.body.name;
-    const data = await Category.findOne({"name" : { $regex: Name,$options : 'i'}})
-    if(data){
-      res.render("admin/add_category" , {message: "category is already defined"});
-    }else{
+    const data = await Category.findOne({
+      name: { $regex: Name, $options: "i" },
+    });
+    if (data) {
+      res.render("admin/add_category", {
+        message: "category is already defined",
+      });
+    } else {
       const data1 = await new Category({
         name: Name,
       });
@@ -210,13 +221,9 @@ const postAddCategory = async (req, res) => {
         });
       }
     }
-
-
   } catch (error) {
     console.log(error.message);
   }
- 
-  
 };
 
 //delete category
@@ -252,12 +259,15 @@ const addProduct = async (req, res) => {
     for (i = 0; i < req.files.length; i++) {
       image[i] = req.files[i].filename;
     }
-   if(image.length === 0){
-    const category = await Category.find()
-    res.render('admin/add_product' , {category: category , message: "Please upload an image"})
-   }
-    let newImgArr =  []
-    image.forEach(function async (image, index) {
+    if (image.length === 0) {
+      const category = await Category.find();
+      res.render("admin/add_product", {
+        category: category,
+        message: "Please upload an image",
+      });
+    }
+    let newImgArr = [];
+    image.forEach(function async(image, index) {
       const imagePath = path.join(
         __dirname,
         `../public/product_images/${image}`
@@ -265,18 +275,13 @@ const addProduct = async (req, res) => {
       const img = fs.readFileSync(imagePath);
 
       imgurUploader(img, { title: "Hello!" }).then((data) => {
-              fs.unlinkSync(imagePath)
-              newImgArr.push(data.link)
-            });
+        fs.unlinkSync(imagePath);
+        newImgArr.push(data.link);
+      });
+    });
 
-      
-
-
-
-    })
-
-    setTimeout(async()=>{
-      const product =  new  Product({
+    setTimeout(async () => {
+      const product = new Product({
         productname: name,
         image: newImgArr,
         description: description,
@@ -284,14 +289,11 @@ const addProduct = async (req, res) => {
         price: price,
         stock: stock,
         deleted: false,
-    })
-      await product.save()
-   
-    res.redirect('/admin/products');
-    },3000)
+      });
+      await product.save();
 
-
-   
+      res.redirect("/admin/products");
+    }, 3000);
   } catch (error) {
     console.log(error.message);
   }
@@ -301,13 +303,20 @@ const addProduct = async (req, res) => {
 const getEditProduct = async (req, res) => {
   try {
     const id = req.query.id;
-    const product = await Product.findById(id);
-    const category = await Category.find();
-    if (product) {
-      res.render("admin/edit_product", {
-        product: product,
-        category: category,
-      });
+    const idLength = id.length;
+    if (idLength != 24) {
+      res.redirect("/IdMismatch");
+    } else {
+      const product = await Product.findById(id);
+      const category = await Category.find();
+      if (product == null) {
+        res.redirect("/IdMismatch");
+      }else{
+        res.render("admin/edit_product", {
+          product: product,
+          category: category,
+        });
+      }
     }
   } catch (error) {
     console.log(error.message);
@@ -319,55 +328,47 @@ const postEditProduct = async (req, res) => {
     const name = req.body.name;
     const id = req.body.id;
 
-    
-    
     const image = [];
     for (i = 0; i < req.files.length; i++) {
       image[i] = req.files[i].filename;
     }
 
-    let newImgArr1 =[]
-    if(image.length === 0){
-        const data =await Product.findById(id)
-        const category =await Category.find()
-        res.render('admin/edit_product', {message: "please upload an image" ,product: data , category: category})
+    let newImgArr1 = [];
+    if (image.length === 0) {
+      const data = await Product.findById(id);
+      const category = await Category.find();
+      res.render("admin/edit_product", {
+        message: "please upload an image",
+        product: data,
+        category: category,
+      });
     }
 
     image.forEach(function (image, index) {
-        const imagePath = path.join(
-          __dirname,
-          `../public/product_images/${image}`
-        );
-        const img = fs.readFileSync(imagePath);
-          //upload to cdn
-        imgurUploader(img, { title: "Hello!" }).then((data) => {
-          newImgArr1.push(data.link)
-          fs.unlinkSync(imagePath);
-         
-        });
+      const imagePath = path.join(
+        __dirname,
+        `../public/product_images/${image}`
+      );
+      const img = fs.readFileSync(imagePath);
+      //upload to cdn
+      imgurUploader(img, { title: "Hello!" }).then((data) => {
+        newImgArr1.push(data.link);
+        fs.unlinkSync(imagePath);
       });
+    });
 
-
-
-      setTimeout(async ()=>{
-        await Product.findByIdAndUpdate(id,{
-          productname: name,
-            image: newImgArr1,
-            description: req.body.description,
-            category: req.body.category,
-            price: req.body.price,
-            stock: req.body.stock,
-            deleted: false,
-        })
-        res.redirect('/admin/products');
-      },3000)
-
-    
-        
-     
-     
-    
-
+    setTimeout(async () => {
+      await Product.findByIdAndUpdate(id, {
+        productname: name,
+        image: newImgArr1,
+        description: req.body.description,
+        category: req.body.category,
+        price: req.body.price,
+        stock: req.body.stock,
+        deleted: false,
+      });
+      res.redirect("/admin/products");
+    }, 3000);
   } catch (error) {
     console.log(error.messsage);
   }
@@ -394,182 +395,196 @@ const deleteProduct = async (req, res) => {
 };
 
 //getCoupon
-const getCoupon = async (req,res) => {
+const getCoupon = async (req, res) => {
   try {
-    const coupon = await Coupon.find()
-    res.render('admin/coupon' , {data: coupon})
+    const coupon = await Coupon.find();
+    res.render("admin/coupon", { data: coupon });
   } catch (error) {
     console.log(error.message);
   }
-}
+};
 //getAddCoupon
-const getAddCoupon = async (req,res) => {
+const getAddCoupon = async (req, res) => {
   try {
-    res.render('admin/add_coupon')
+    res.render("admin/add_coupon");
   } catch (error) {
     console.log(error.message);
   }
-}
+};
 //postAddCoupon
-const postAddCoupon = async (req,res) => {
+const postAddCoupon = async (req, res) => {
   try {
-    let coupons=new Coupon({
-      couponcode:req.body.name,
-      couponamounttype:req.body.coupontype,
-      couponamount:req.body.amount,
-      mincartamount:req.body.mincart,
-      maxredeemamount:req.body.maxredeem,
-      expiredate:req.body.date,
-      limit:req.body.limit,
-    
-      
-  })
-  await coupons.save()
-  res.redirect("/admin/coupon")
+    let coupons = new Coupon({
+      couponcode: req.body.name,
+      couponamounttype: req.body.coupontype,
+      couponamount: req.body.amount,
+      mincartamount: req.body.mincart,
+      maxredeemamount: req.body.maxredeem,
+      expiredate: req.body.date,
+      limit: req.body.limit,
+    });
+    await coupons.save();
+    res.redirect("/admin/coupon");
   } catch (error) {
     console.log(error.message);
   }
-}
+};
 
 //delete coupon
-const deleteCoupon = async (req,res) => {
+const deleteCoupon = async (req, res) => {
   try {
-    
-    await Coupon.findByIdAndDelete({couponcode: req.query.code})
-    res.redirect("/admin/coupon")
+    await Coupon.findByIdAndDelete({ couponcode: req.query.code });
+    res.redirect("/admin/coupon");
   } catch (error) {
     console.log(error.message);
   }
-}
+};
 
 // getBanner
-const getBanner = async (req,res) => {
+const getBanner = async (req, res) => {
   try {
-    const bannerData = await Banner.find()
-   res.render('admin/banner' ,{data: bannerData})
+    const bannerData = await Banner.find();
+    res.render("admin/banner", { data: bannerData });
   } catch (error) {
     console.log(error.message);
   }
-}
+};
 
 //addBanner
-const getAddBanner = async (req,res) => {
+const getAddBanner = async (req, res) => {
   try {
-    res.render("admin/add_banner")
+    res.render("admin/add_banner");
   } catch (error) {
     console.log(error.message);
   }
-}
+};
 
 //postAddBanner
-const postAddBanner = async (req,res) => {
+const postAddBanner = async (req, res) => {
   try {
-    const heading = req.body.heading
-        const discription = req.body.discription
-        const image = req.file.filename
-        
-        const data = new Banner({
-            heading : heading,
-            discription : discription,
-            image : image,
-            
-        })
+    const heading = req.body.heading;
+    const discription = req.body.discription;
+    const image = req.file.filename;
 
-        const result = await data.save()
-        if(result){
-            res.redirect('/admin/banner')
-        }
+    const data = new Banner({
+      heading: heading,
+      discription: discription,
+      image: image,
+    });
+
+    const result = await data.save();
+    if (result) {
+      res.redirect("/admin/banner");
+    }
   } catch (error) {
     console.log(error);
   }
-}
-
+};
 
 //unlist banner
-const unlistBanner = async (req,res) => {
+const unlistBanner = async (req, res) => {
   try {
-      const id = req.query.id
-      const data = await Banner.findById(id)
-      if(data.status == true){
-          await Banner.findByIdAndUpdate(id,{status : false})
-      }else {
-          await Banner.findByIdAndUpdate(id,{status : true})
-      }
-      res.redirect('/admin/banner')
+    const id = req.query.id;
+    const data = await Banner.findById(id);
+    if (data.status == true) {
+      await Banner.findByIdAndUpdate(id, { status: false });
+    } else {
+      await Banner.findByIdAndUpdate(id, { status: true });
+    }
+    res.redirect("/admin/banner");
   } catch (error) {
-      console.log(error.message);
+    console.log(error.message);
   }
-}
+};
 
 //getOrder
-const getOrder = async (req,res) => {
+const getOrder = async (req, res) => {
   try {
-    const orderData = await Order.find()
-    let SubTotal = 0
-    orderData.forEach(function(value){
-      SubTotal = SubTotal+value.totalAmount;
-    })
-    res.render("admin/order" ,{data: orderData , total: SubTotal});
+    const orderData = await Order.find();
+    let SubTotal = 0;
+    orderData.forEach(function (value) {
+      SubTotal = SubTotal + value.totalAmount;
+    });
+    res.render("admin/order", { data: orderData, total: SubTotal });
   } catch (error) {
     console.log(error.message);
   }
-}
+};
 //report download
-const report = async (req,res) => {
+const report = async (req, res) => {
   try {
-    const browser = await puppeteer.launch()
-    const page = await browser.newPage()
-    await page.goto('https://arc018.com/' , {
-      waitUntil:"networkidle2"
-    })
-    await page.setViewport({width: 1680 , height: 1050})
-    const todayDate = new Date()
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.goto("https://arc018.com/", {
+      waitUntil: "networkidle2",
+    });
+    await page.setViewport({ width: 1680, height: 1050 });
+    const todayDate = new Date();
     const pdfn = await page.pdf({
-      path: `${path.join(__dirname,'../public/files', todayDate.getTime()+".pdf")}`,
-      format: "A4"
-    })
+      path: `${path.join(
+        __dirname,
+        "../public/files",
+        todayDate.getTime() + ".pdf"
+      )}`,
+      format: "A4",
+    });
 
-    await browser.close()
-    
-    const pdfUrl = path.join(__dirname,'../public/files', todayDate.getTime()+".pdf")
+    await browser.close();
+
+    const pdfUrl = path.join(
+      __dirname,
+      "../public/files",
+      todayDate.getTime() + ".pdf"
+    );
 
     res.set({
-      "Content-Type":"application/pdf",
-      "Content-Length":pdfn.length
-    })
-    res.sendFile(pdfUrl)
-
+      "Content-Type": "application/pdf",
+      "Content-Length": pdfn.length,
+    });
+    res.sendFile(pdfUrl);
   } catch (error) {
     console.log(error.message);
   }
-}
+};
 
 //viewSingleOrder
-const viewOrder = async (req,res) => {
+const viewOrder = async (req, res) => {
   try {
-    const orderId = req.query.id
-        const orderData = await Order.findById(orderId).populate('product.productId')
-        const userId = orderData.user
-        const userData =  await User.findById(userId)
-
-    res.render("admin/single_order" , {orderData,userData})
+    const orderId = req.query.id;
+    const idLength = orderId.length
+      if(idLength != 24){
+        res.redirect("/IdMismatch")
+      }else{
+        const orderData = await Order.findById(orderId).populate(
+          "product.productId"
+        );
+        if(orderData == null ){
+          res.redirect("/IdMismatch")
+        }else{
+          const userId = orderData.user;
+        const userData = await User.findById(userId);
+    
+        res.render("admin/single_order", { orderData, userData });
+        }
+        
+      }
+    
   } catch (error) {
     console.log(error.message);
   }
-}
+};
 
 //updateStatus
-const updateStatus = async (req,res) => {
+const updateStatus = async (req, res) => {
   try {
-    const status = req.body.status
-    const orderId = req.body.orderId
-    await Order.findByIdAndUpdate(orderId,{status : status})
-    res.redirect('/admin/order')
+    const status = req.body.status;
+    const orderId = req.body.orderId;
+    await Order.findByIdAndUpdate(orderId, { status: status });
+    res.redirect("/admin/order");
   } catch (error) {
     console.log(error.message);
   }
-}
-
+};
 
 module.exports = {
   getAdmin,
