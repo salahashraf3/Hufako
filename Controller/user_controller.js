@@ -1,11 +1,11 @@
 const User = require("../Model/user_model");
 const Product = require("../Model/product_model");
-const Banner = require("../Model/banner_model")
+const Banner = require("../Model/banner_model");
 const Cart = require("../Model/cart_model");
 const Order = require("../Model/order_model");
 const Coupon = require("../Model/coupon_model");
-const WishList = require("../Model/wishlist_model")
-const { ObjectId } = require("mongodb")
+const WishList = require("../Model/wishlist_model");
+const { ObjectId } = require("mongodb");
 
 // twilio config
 const { client } = require("../Config");
@@ -21,16 +21,20 @@ const { log } = require("console");
 //get home page
 const getHome = async (req, res) => {
   try {
-    const bannerData = await Banner.find()
+    const bannerData = await Banner.find();
     const product = await Product.find();
     if (req.session.user) {
-      res.render("user/home", { user: req.session.name, products: product, banner: bannerData });
+      res.render("user/home", {
+        user: req.session.name,
+        products: product,
+        banner: bannerData,
+      });
     } else {
       req.session.user = false;
       res.render("user/home", { products: product, banner: bannerData });
     }
   } catch (error) {
-    res.redirect('/serverERR', {message: error.message})
+    res.redirect("/serverERR", { message: error.message });
     console.log(error.message);
   }
 };
@@ -40,7 +44,7 @@ const getLogin = (req, res) => {
   try {
     res.render("user/login");
   } catch (error) {
-    res.redirect('/serverERR', {message: error.message})
+    res.redirect("/serverERR", { message: error.message });
     console.log(error.message);
   }
 };
@@ -59,7 +63,11 @@ const postLogin = async (req, res) => {
           const data = await Product.find();
           req.session.user = true;
           req.session.name = user.name;
-          res.render("user/home", { user: req.session.name, products: data, banner: bannerData});
+          res.render("user/home", {
+            user: req.session.name,
+            products: data,
+            banner: bannerData,
+          });
         } else {
           res.render("user/login", {
             message: "Entered password is incorrect",
@@ -72,7 +80,7 @@ const postLogin = async (req, res) => {
       res.render("user/login", { message: "Entered email is incorrect" });
     }
   } catch (error) {
-    res.redirect('/serverERR', {message: error.message})
+    res.redirect("/serverERR", { message: error.message });
     console.log(error.message);
   }
 };
@@ -82,7 +90,7 @@ const getRegister = (req, res) => {
   try {
     res.render("user/register");
   } catch (error) {
-    res.redirect('/serverERR', {message: error.message})
+    res.redirect("/serverERR", { message: error.message });
     console.log(error.message);
   }
 };
@@ -120,7 +128,7 @@ const postRegister = async (req, res) => {
       }
     }
   } catch (error) {
-    res.redirect('/serverERR', {message: error.message})
+    res.redirect("/serverERR", { message: error.message });
     console.log(error.message);
   }
 };
@@ -152,7 +160,7 @@ const postOtp = async (req, res) => {
       res.render("user/otp", { message: "Otp validation failed" });
     }
   } catch (error) {
-    res.redirect('/serverERR', {message: error.message})
+    res.redirect("/serverERR", { message: error.message });
     console.log(error.messsage);
   }
 };
@@ -186,7 +194,7 @@ const postForget = async (req, res) => {
       });
     }
   } catch (error) {
-    res.redirect('/serverERR', {message: error.message})
+    res.redirect("/serverERR", { message: error.message });
     console.log(error.message);
   }
 };
@@ -220,7 +228,7 @@ const postForgetOTP = async (req, res) => {
       res.render("user/forget_otp", { message: "otp invalid" });
     }
   } catch (error) {
-    res.redirect('/serverERR', {message: error.message})
+    res.redirect("/serverERR", { message: error.message });
     console.log(error.message);
   }
 };
@@ -235,29 +243,20 @@ const getLogout = (req, res) => {
 const getProduct = async (req, res) => {
   try {
     const productId = req.query.id;
-    const productLength = productId.length
-    if(productLength != 24){
-      res.redirect("/IdMismatch")
-    }else{
+    const productLength = productId.length;
+    if (productLength != 24) {
+      res.redirect("/IdMismatch");
+    } else {
+      const data = await Product.findOne({ _id: productId });
 
-    const data = await Product.findOne({ _id: productId });
-    
-
-    if(data == null ){
-    
-      res.redirect("/IdMismatch")
+      if (data == null) {
+        res.redirect("/IdMismatch");
+      } else {
+        res.render("user/single_product", { product: data });
+      }
     }
-    else{
-      res.render("user/single_product", { product: data });
-    }
-    }
-    
-
-    
-    
-    
   } catch (error) {
-    res.redirect('/serverERR', {message: error.message})
+    res.redirect("/serverERR", { message: error.message });
     console.log(error.message);
   }
 };
@@ -274,7 +273,7 @@ const getCart = async (req, res) => {
         const cartData = await Cart.findOne({ user: userData._id }).populate(
           "product.productId"
         );
-        
+
         if (cartData) {
           let Total;
           if (cartData.product != 0) {
@@ -327,7 +326,7 @@ const getCart = async (req, res) => {
       res.redirect("/");
     }
   } catch (error) {
-    res.redirect('/serverERR', {message: error.message})
+    res.redirect("/serverERR", { message: error.message });
     console.log(error.message);
   }
 };
@@ -343,8 +342,8 @@ const addToCart = async (req, res) => {
       const productData = await Product.findById(productId);
       const userCart = await Cart.findOne({ user: userId });
       if (userCart) {
-        const productExist =  userCart.product.findIndex(
-          product => product.productId == productId
+        const productExist = userCart.product.findIndex(
+          (product) => product.productId == productId
         );
         if (productExist != -1) {
           await Cart.findOneAndUpdate(
@@ -360,8 +359,10 @@ const addToCart = async (req, res) => {
               },
             }
           );
-          //remove from wishlist 
-          const wishlist = await WishList.findOneAndRemove({ "product.$.productId": productData._id });
+          //remove from wishlist
+          const wishlist = await WishList.findOneAndRemove({
+            "product.$.productId": productData._id,
+          });
           console.log(wishlist);
         }
       } else {
@@ -376,7 +377,7 @@ const addToCart = async (req, res) => {
       res.json({ success: false });
     }
   } catch (error) {
-    res.redirect('/serverERR', {message: error.message})
+    res.redirect("/serverERR", { message: error.message });
     console.log(error.message);
   }
 };
@@ -404,7 +405,7 @@ const changeQty = async (req, res) => {
       res.json({ success: false });
     }
   } catch (error) {
-    res.redirect('/serverERR', {message: error.message})
+    res.redirect("/serverERR", { message: error.message });
     console.log(error.message);
   }
 };
@@ -421,7 +422,7 @@ const deleteCart = async (req, res) => {
       res.json({ success: true });
     }
   } catch (error) {
-    res.redirect('/serverERR', {message: error.message})
+    res.redirect("/serverERR", { message: error.message });
     console.log(error.message);
   }
 };
@@ -469,13 +470,17 @@ const checkout = async (req, res) => {
         const data = await User.findOne({
           name: req.session.name,
         });
-        res.render("user/checkout", { address: data.address, total: Total ,wallet: data.wallet});
+        res.render("user/checkout", {
+          address: data.address,
+          total: Total,
+          wallet: data.wallet,
+        });
       }
     } else {
       res.redirect("/");
     }
   } catch (error) {
-    res.redirect('/serverERR', {message: error.message})
+    res.redirect("/serverERR", { message: error.message });
     console.log(error.message);
   }
 };
@@ -507,7 +512,7 @@ const postAddress = async (req, res) => {
       res.redirect("/");
     }
   } catch (error) {
-    res.redirect('/serverERR', {message: error.message})
+    res.redirect("/serverERR", { message: error.message });
     console.log(error.message);
   }
 };
@@ -518,10 +523,10 @@ const deleteAddress = async (req, res) => {
     if (req.session.user) {
       const userName = req.session.name;
       const id = req.query.id;
-      const idLength = id.length
-      if(idLength != 24){
-        res.redirect("/IdMismatch")
-      }else{
+      const idLength = id.length;
+      if (idLength != 24) {
+        res.redirect("/IdMismatch");
+      } else {
         await User.updateOne(
           { name: userName },
           {
@@ -534,14 +539,11 @@ const deleteAddress = async (req, res) => {
         );
         res.redirect("/checkout");
       }
-      
-
-      
     } else {
       res.redirect("/");
     }
   } catch (error) {
-    res.redirect('/serverERR', {message: error.message})
+    res.redirect("/serverERR", { message: error.message });
     console.log(error.message);
   }
 };
@@ -550,7 +552,7 @@ const deleteAddress = async (req, res) => {
 const postPlaceOrder = async (req, res) => {
   try {
     if (req.session.user) {
-      const { total, address, payment ,wallet , totalBefore } = req.body;
+      const { total, address, payment, wallet, totalBefore } = req.body;
       const user = await User.findOne({
         name: req.session.name,
       });
@@ -580,10 +582,9 @@ const postPlaceOrder = async (req, res) => {
       let orderId = orderNew._id;
 
       await User.findByIdAndUpdate(user._id, {
-        wallet:0
-      })
-      
-      
+        wallet: 0,
+      });
+
       if (status == "placed") {
         const couponData = await Coupon.findById(req.session.couponId);
         if (couponData) {
@@ -591,40 +592,39 @@ const postPlaceOrder = async (req, res) => {
           await Coupon.findByIdAndUpdate(couponData._id, {
             limit: newLimit,
           });
-          await Order.findByIdAndUpdate(orderId,{
+          await Order.findByIdAndUpdate(orderId, {
             couponCode: couponData.couponcode,
-            discount: couponData.couponamount
-          })
-        }
-        await Cart.deleteOne({ user: user._id });
-          for (i = 0; i < product.length; i++) {
-            const productId = product[i].productId;
-            const quantity = Number(product[i].quantity)
-            await Product.findByIdAndUpdate(productId, {
-              $inc: { stock: -quantity },
-            });
-          }
-          res.json({ codSuccess: true });
-        } else {
-          var options = {
-            amount: total * 100, // amount in the smallest currency unit
-            currency: "INR",
-            receipt: "" + orderId,
-          };
-          instance.orders.create(options, function (err, order) {
-            if (err) {
-              console.log(err);
-            } else {
-              res.json({ order });
-            }
+            discount: couponData.couponamount,
           });
         }
-      
+        await Cart.deleteOne({ user: user._id });
+        for (i = 0; i < product.length; i++) {
+          const productId = product[i].productId;
+          const quantity = Number(product[i].quantity);
+          await Product.findByIdAndUpdate(productId, {
+            $inc: { stock: -quantity },
+          });
+        }
+        res.json({ codSuccess: true });
+      } else {
+        var options = {
+          amount: total * 100, // amount in the smallest currency unit
+          currency: "INR",
+          receipt: "" + orderId,
+        };
+        instance.orders.create(options, function (err, order) {
+          if (err) {
+            console.log(err);
+          } else {
+            res.json({ order });
+          }
+        });
+      }
     } else {
       res.redirect("/");
     }
   } catch (error) {
-    res.redirect('/serverERR', {message: error.message})
+    res.redirect("/serverERR", { message: error.message });
     console.log(error.message);
   }
 };
@@ -634,9 +634,9 @@ const verifyPayment = async (req, res) => {
   try {
     if (req.session.user) {
       let userData = await User.findOne({ name: req.session.name });
-      const cartData = await Cart.findOne({ user:  userData._id });
+      const cartData = await Cart.findOne({ user: userData._id });
       const product = cartData.product;
-      
+
       const details = req.body;
       const crypto = require("crypto");
       let hmac1 = crypto.createHmac("sha256", process.env.RAZORPAY_API_SECRET);
@@ -649,18 +649,16 @@ const verifyPayment = async (req, res) => {
       hmac1 = hmac1.digest("hex");
 
       if (hmac1 == details.payment.razorpay_signature) {
-
-        let orderReceipt = details.order.receipt
+        let orderReceipt = details.order.receipt;
         let test1 = await Order.findByIdAndUpdate(
           {
-            _id: new ObjectId(orderReceipt)
+            _id: new ObjectId(orderReceipt),
           },
           { $set: { paymentId: details.payment.razorpay_payment_id } }
         );
-        let test2 = await Order.findByIdAndUpdate(
-          orderReceipt ,
-          { $set: { status: "placed" } }
-        );
+        let test2 = await Order.findByIdAndUpdate(orderReceipt, {
+          $set: { status: "placed" },
+        });
         await Cart.deleteOne({ user: userData._id });
 
         for (i = 0; i < product.length; i++) {
@@ -670,7 +668,7 @@ const verifyPayment = async (req, res) => {
             $inc: { stock: -quantity },
           });
         }
-        
+
         res.json({ success: true });
       } else {
         await Order.deleteOne({ _id: details.order.receipt });
@@ -680,7 +678,7 @@ const verifyPayment = async (req, res) => {
       res.redirect("/login");
     }
   } catch (error) {
-    res.redirect('/serverERR', {message: error.message})
+    res.redirect("/serverERR", { message: error.message });
     console.log(error.message);
   }
 };
@@ -690,7 +688,7 @@ const getOrderPlaced = (req, res) => {
   try {
     res.render("user/order_placed");
   } catch (error) {
-    res.redirect('/serverERR', {message: error.message})
+    res.redirect("/serverERR", { message: error.message });
     console.log(error.message);
   }
 };
@@ -719,9 +717,6 @@ const applycoupon = async (req, res) => {
               let distotal = Math.round(amount - discountvalue);
               let couponId = couponData._id;
               req.session.couponId = couponId;
-              
-
-            
 
               return res.json({
                 couponokey: true,
@@ -744,7 +739,7 @@ const applycoupon = async (req, res) => {
       }
     }
   } catch (error) {
-    res.redirect('/serverERR', {message: error.message})
+    res.redirect("/serverERR", { message: error.message });
     console.log(error.message);
   }
 };
@@ -759,303 +754,355 @@ const getUserProfile = async (req, res) => {
       res.redirect("/login");
     }
   } catch (error) {
-    res.redirect('/serverERR', {message: error.message})
+    res.redirect("/serverERR", { message: error.message });
     console.log(error.message);
   }
 };
 
 // getOrder
-const getOrder = async (req,res) => {
+const getOrder = async (req, res) => {
   try {
-    if(req.session.user){
+    if (req.session.user) {
       let userData = await User.findOne({ name: req.session.name });
-      const orderData = await Order.find({user: userData._id})
-      res.render("user/order" ,{user: req.session.name , data: orderData })
-    }else{
+      const orderData = await Order.find({ user: userData._id });
+      res.render("user/order", { user: req.session.name, data: orderData });
+    } else {
       res.redirect("/login");
     }
   } catch (error) {
-    res.redirect('/serverERR', {message: error.message})
+    res.redirect("/serverERR", { message: error.message });
     console.log(error.message);
   }
-}
+};
 
-//singleOrder 
+//singleOrder
 const singleOrder = async (req, res) => {
   try {
-    if(req.session.user){
-      const id = req.query.id
-      const idLength = id.length
-      if(idLength != 24){
-        res.redirect("/IdMismatch")
-      }else{
-        
-        const orderData = await Order.findById(id).populate('product.productId')
-        if(orderData == null){
-          res.redirect("/IdMismatch")
-        }else{
-          res.render("user/single_order", {data: orderData.product ,orderData})
+    if (req.session.user) {
+      const id = req.query.id;
+      const idLength = id.length;
+      if (idLength != 24) {
+        res.redirect("/IdMismatch");
+      } else {
+        const orderData = await Order.findById(id).populate(
+          "product.productId"
+        );
+        if (orderData == null) {
+          res.redirect("/IdMismatch");
+        } else {
+          res.render("user/single_order", {
+            data: orderData.product,
+            orderData,
+          });
         }
       }
-     
-    }else{
+    } else {
       res.redirect("/login");
     }
   } catch (error) {
-    res.redirect('/serverERR', {message: error.message})
+    res.redirect("/serverERR", { message: error.message });
     console.log(error.message);
   }
-}
+};
 
 //cancel Order
 const cancelOrder = async (req, res) => {
   try {
-    if(req.session.user){
-      const id = req.query.id
-      const idLength = id.length
-      if(idLength != 24){
-        res.redirect("/IdMismatch")
-      }else{
-        const orderData = await Order.findById(id)
-        if(orderData == null){
-          res.redirect("/IdMismatch")
-        }else{
-          if(orderData.paymentMethod == "cod" || orderData.paymentMethod == "online"){
-            await User.findOneAndUpdate({name: req.session.name},{
-              $inc : {wallet: +orderData.wallet}
-            })
-            
-            const orderDataa= await Order.findByIdAndUpdate(id, {
+    if (req.session.user) {
+      const id = req.query.id;
+      const idLength = id.length;
+      if (idLength != 24) {
+        res.redirect("/IdMismatch");
+      } else {
+        const orderData = await Order.findById(id);
+        if (orderData == null) {
+          res.redirect("/IdMismatch");
+        } else {
+          if (
+            orderData.paymentMethod == "cod" ||
+            orderData.paymentMethod == "online"
+          ) {
+            await User.findOneAndUpdate(
+              { name: req.session.name },
+              {
+                $inc: { wallet: +orderData.wallet },
+              }
+            );
+
+            const orderDataa = await Order.findByIdAndUpdate(id, {
               status: "cancelled",
-              
-            })
-      
-            if(orderDataa){
-              res.redirect("/order")
+            });
+
+            if (orderDataa) {
+              res.redirect("/order");
             }
           }
         }
-      
       }
-      
-      
-      
-
-
-    }else{
+    } else {
       res.redirect("/login");
     }
   } catch (error) {
-    res.redirect('/serverERR', {message: error.message})
+    res.redirect("/serverERR", { message: error.message });
     console.log(error.message);
   }
-}
+};
 
 //rerturn order
 const returnOrder = async (req, res) => {
   try {
-    if(req.session.user){
-      const id = req.query.id
-      const orderData = await Order.findById(id)
-      if(orderData.paymentMethod == "cod" || orderData.paymentMethod == "online"){
-        await User.findOneAndUpdate({name: req.session.name},{
-          $inc : {wallet: +orderData.totalBefore}
-        })
-        
-        const orderDataa= await Order.findByIdAndUpdate(id, {
+    if (req.session.user) {
+      const id = req.query.id;
+      const orderData = await Order.findById(id);
+      if (
+        orderData.paymentMethod == "cod" ||
+        orderData.paymentMethod == "online"
+      ) {
+        await User.findOneAndUpdate(
+          { name: req.session.name },
+          {
+            $inc: { wallet: +orderData.totalBefore },
+          }
+        );
+
+        const orderDataa = await Order.findByIdAndUpdate(id, {
           status: "returned",
-          wallet: 0
-        })
-  
-        if(orderDataa){
-          res.redirect("/order")
+          wallet: 0,
+        });
+
+        if (orderDataa) {
+          res.redirect("/order");
         }
       }
-
-
-
-    }else{
+    } else {
       res.redirect("/login");
     }
   } catch (error) {
-    res.redirect('/serverERR', {message: error.message})
+    res.redirect("/serverERR", { message: error.message });
     console.log(error.message);
   }
-}
+};
 
 //getSales Report
 const getSalesReport = async (req, res) => {
   try {
-    const orderData = await Order.find({status:{$eq:"Delivered"}})
-    let SubTotal = 0
-    orderData.forEach(function(value){
-      SubTotal = SubTotal+value.totalAmount;
-    })
-    res.render("admin/sales_report" ,{data: orderData, total: SubTotal})
+    let start
+    let end  
+
+    req.query.start ? (start = new Date(req.query.start)) : (start = "ALL");
+    req.query.end ? (end = new Date(req.query.end)) : (end = "ALL");
+
+
+    if(start != "ALL" && end != "ALL"){
+      const data = await Order.aggregate([
+          {
+              $match : {
+                  $and : [{Date : {$gte : start}},{Date : {$lte : end}},{ status: { $eq: "Delivered" } }]
+              }
+          }
+      ])
+      let SubTotal = 0;
+    data.forEach(function (value) {
+      SubTotal = SubTotal + value.totalAmount;
+    });
+      res.render('admin/sales_report', {data , total: SubTotal})
+  }else{
+    const orderData = await Order.find({ status: { $eq: "Delivered" } });
+    let SubTotal = 0;
+    orderData.forEach(function (value) {
+      SubTotal = SubTotal + value.totalAmount;
+    });
+    res.render("admin/sales_report", { data: orderData, total: SubTotal });
+  }
+
+
   } catch (error) {
-    res.redirect('/serverERR', {message: error.message})
+    res.redirect("/serverERR", { message: error.message });
     console.log(error.message);
   }
-}
+};
 
-//checkWallet 
+//checkWallet
 const checkWallet = async (req, res) => {
   try {
-    if(req.session.user){
-      const userData = await User.findOne({name: req.session.name})
-      const walleta = userData.wallet
-      if(walleta>0){
-        res.json({success: true ,walleta})
+    if (req.session.user) {
+      const userData = await User.findOne({ name: req.session.name });
+      const walleta = userData.wallet;
+      if (walleta > 0) {
+        res.json({ success: true, walleta });
       }
-    }else{
+    } else {
       res.redirect("/login");
     }
   } catch (error) {
-    res.redirect('/serverERR', {message: error.message})
+    res.redirect("/serverERR", { message: error.message });
     console.log(error.message);
   }
-}
+};
 
 //getWishlist
 const getWishlist = async (req, res) => {
   try {
-    if(req.session.user){
-      const user = req.session.name
-        const userData = await User.findOne({name : req.session.name})
-        const data = await WishList.findOne({user : userData._id}).populate("product.productId")
+    if (req.session.user) {
+      const user = req.session.name;
+      const userData = await User.findOne({ name: req.session.name });
+      const data = await WishList.findOne({ user: userData._id }).populate(
+        "product.productId"
+      );
 
-        if(data){
-            if(data.product != 0){
-                res.render('user/wishlist' , {user : user , data : data.product})
-            }else {
-                res.render('user/wishlist' , {user : user , data2 :'hi'})
-            }
-        }else {
-            res.render('user/wishlist' , {user : user , data2 :'hi'})
-
+      if (data) {
+        if (data.product != 0) {
+          res.render("user/wishlist", { user: user, data: data.product });
+        } else {
+          res.render("user/wishlist", { user: user, data2: "hi" });
         }
-
-    }else{
+      } else {
+        res.render("user/wishlist", { user: user, data2: "hi" });
+      }
+    } else {
       res.redirect("/login");
     }
   } catch (error) {
-    res.redirect('/serverERR', {message: error.message})
+    res.redirect("/serverERR", { message: error.message });
     console.log(error.message);
   }
-}
+};
 
-const addWishlist = async (req,res) => {
+const addWishlist = async (req, res) => {
   try {
-    if(req.session.user){
-      
-      const productId = req.body.id
+    if (req.session.user) {
+      const productId = req.body.id;
 
-
-        const productData = await Product.findById(productId)
-        const userData = await User.findOne({name : req.session.name})
-        const alreadyWishlist = await WishList.findOne({user : new ObjectId(userData._id) })
-        if(alreadyWishlist){
-            const productExist = await alreadyWishlist.product.findIndex( product => product.productId == productId)
-            if(productExist != -1) {
-                res.json({already : true})
-            }else {
-                await WishList.findOneAndUpdate({user : userData._id},{$push : 
-                    {product:
-                        {
-                            productId : productId,
-                            name : productData.name,
-                            price : productData.price
-                        }
-                    }
-                })
-                res.json({success : true})
+      const productData = await Product.findById(productId);
+      const userData = await User.findOne({ name: req.session.name });
+      const alreadyWishlist = await WishList.findOne({
+        user: new ObjectId(userData._id),
+      });
+      if (alreadyWishlist) {
+        const productExist = await alreadyWishlist.product.findIndex(
+          (product) => product.productId == productId
+        );
+        if (productExist != -1) {
+          res.json({ already: true });
+        } else {
+          await WishList.findOneAndUpdate(
+            { user: userData._id },
+            {
+              $push: {
+                product: {
+                  productId: productId,
+                  name: productData.name,
+                  price: productData.price,
+                },
+              },
             }
-        }else {
-            const data = new WishList({
-                user : userData._id,
-                product : [{
-                    productId : productId,
-                    name : productData.productname,
-                    price : productData.price
-                }]
-            })
-            await data.save()
-            res.json({success : true})
+          );
+          res.json({ success: true });
         }
-
-
-    }else{
+      } else {
+        const data = new WishList({
+          user: userData._id,
+          product: [
+            {
+              productId: productId,
+              name: productData.productname,
+              price: productData.price,
+            },
+          ],
+        });
+        await data.save();
+        res.json({ success: true });
+      }
+    } else {
       res.redirect("/login");
     }
   } catch (error) {
-    res.redirect('/serverERR', {message: error.message})
+    res.redirect("/serverERR", { message: error.message });
     console.log(error.message);
   }
-}
-
+};
 
 //addtocartwishlist
-const addToCartWishlist = async (req,res) => {
+const addToCartWishlist = async (req, res) => {
   try {
-      if(req.session.user){
-          const productId = req.body.id
-          const userName = req.session.name
-          const userData = await User.findOne({name : userName})
-          const userId = userData._id
-          const productData = await Product.findById(productId)
-          const userCart = await Cart.findOne({user : userId})
+    if (req.session.user) {
+      const productId = req.body.id;
+      const userName = req.session.name;
+      const userData = await User.findOne({ name: userName });
+      const userId = userData._id;
+      const productData = await Product.findById(productId);
+      const userCart = await Cart.findOne({ user: userId });
 
-          if(userCart) {
-              const productExist = await userCart.product.findIndex( product => product.productId == productId)
-              if(productExist != -1){
-                  const cartData = await Cart.findOne(
-                      {user : userId, "product.productId" : productId},
-                      {"product.productId.$" : 1 , "product.quantity" : 1})
-  
-                  const [{quantity : quantity}] = cartData.product
+      if (userCart) {
+        const productExist = await userCart.product.findIndex(
+          (product) => product.productId == productId
+        );
+        if (productExist != -1) {
+          const cartData = await Cart.findOne(
+            { user: userId, "product.productId": productId },
+            { "product.productId.$": 1, "product.quantity": 1 }
+          );
 
-                  if(productData.stock <= quantity ){
-                      res.json({outofstock:true})
-                  }else {
-                      await Cart.findOneAndUpdate({user : userId, "product.productId" : productId},{$inc : {"product.$.quantity" : 1}})
-                      await WishList.findOneAndUpdate({"product.productId" : productId},{$pull : {product :{productId : productId}}})
-                      res.json({success : true})
+          const [{ quantity: quantity }] = cartData.product;
 
-                  }
-              }else{
-                  if(productData.stock <= 0 ){
-                      res.json({outofstock:true})
-                  }else {
-                      await Cart.findOneAndUpdate({user : userId},{$push : {product:{productId : productId, price : productData.price}}})
-                      await WishList.findOneAndUpdate({"product.productId" : productId},{$pull : {product :{productId : productId}}})
-                      res.json({success : true})
-                  }
-              }
-              
-          }else{
-              if(productData.stock <= 0){
-                  res.json({outofstock:true})
-              }else{
-                  const data = new Cart({
-                      user : userId,
-                      product:[{productId : productId, price : productData.price}]
-                  })
-                  const result = await data.save()
-                  await WishList.findOneAndUpdate({"product.productId" : productId},{$pull : {product :{productId : productId}}})
-                  if(result){
-                      res.json({success:true})
-                  }
-              }
+          if (productData.stock <= quantity) {
+            res.json({ outofstock: true });
+          } else {
+            await Cart.findOneAndUpdate(
+              { user: userId, "product.productId": productId },
+              { $inc: { "product.$.quantity": 1 } }
+            );
+            await WishList.findOneAndUpdate(
+              { "product.productId": productId },
+              { $pull: { product: { productId: productId } } }
+            );
+            res.json({ success: true });
           }
-      }else{
-          res.json({login : true})
+        } else {
+          if (productData.stock <= 0) {
+            res.json({ outofstock: true });
+          } else {
+            await Cart.findOneAndUpdate(
+              { user: userId },
+              {
+                $push: {
+                  product: { productId: productId, price: productData.price },
+                },
+              }
+            );
+            await WishList.findOneAndUpdate(
+              { "product.productId": productId },
+              { $pull: { product: { productId: productId } } }
+            );
+            res.json({ success: true });
+          }
+        }
+      } else {
+        if (productData.stock <= 0) {
+          res.json({ outofstock: true });
+        } else {
+          const data = new Cart({
+            user: userId,
+            product: [{ productId: productId, price: productData.price }],
+          });
+          const result = await data.save();
+          await WishList.findOneAndUpdate(
+            { "product.productId": productId },
+            { $pull: { product: { productId: productId } } }
+          );
+          if (result) {
+            res.json({ success: true });
+          }
+        }
       }
+    } else {
+      res.json({ login: true });
+    }
   } catch (error) {
-    res.redirect('/serverERR', {message: error.message})
-      console.log(error.message)
+    res.redirect("/serverERR", { message: error.message });
+    console.log(error.message);
   }
-}
-
+};
 
 module.exports = {
   getHome,

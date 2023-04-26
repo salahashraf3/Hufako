@@ -513,9 +513,11 @@ const getOrder = async (req, res) => {
 //report download
 const report = async (req, res) => {
   try {
+    const startDate = req.query.start
+    const endDate = req.query.end
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
-    await page.goto("https://arc018.com/", {
+    await page.goto(`http://localhost:3000/salesReport?start=${startDate}&end=${endDate}`, {
       waitUntil: "networkidle2",
     });
     await page.setViewport({ width: 1680, height: 1050 });
@@ -586,6 +588,17 @@ const updateStatus = async (req, res) => {
   }
 };
 
+//getSalesReport
+const getSalesReport = async (req, res) => {
+  try {
+    res.render('admin/salesReport')
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
+
+
 module.exports = {
   getAdmin,
   getAdminLogin,
@@ -620,4 +633,5 @@ module.exports = {
   viewOrder,
   updateStatus,
   report,
+  getSalesReport,
 };

@@ -91,10 +91,12 @@ admin_route.get('/singleOrder',session.logged,adminController.viewOrder)
 //sales
 admin_route.get("/report",adminController.report)
 
+
 //updateStatus
 admin_route.post("/updateStatus",session.logged,adminController.updateStatus)
 
-
+//sales report get
+admin_route.get("/SalesReport",session.logged,adminController.getSalesReport)
 
 
 
