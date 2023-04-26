@@ -5,6 +5,7 @@ const Cart = require("../Model/cart_model");
 const Order = require("../Model/order_model");
 const Coupon = require("../Model/coupon_model");
 const WishList = require("../Model/wishlist_model");
+const Category = require('../Model/category_model')
 const { ObjectId } = require("mongodb");
 
 // twilio config
@@ -1104,6 +1105,48 @@ const addToCartWishlist = async (req, res) => {
   }
 };
 
+//getShop
+const getShop =async (req,res) =>{
+  try {
+    const page = Number(req.query.page) || 1
+    const limit = 9
+    const skip = (page-1)*limit
+
+    let Search = req.query.search || ""
+    Search = Search.trim()
+
+    let category = req.query.category  || 'ALL'
+    let cat = []
+    const catData = await Category.find()
+    for(let i =0; i< catData.length; i++){
+      cat[i] = catData[i].name
+    }
+    category === 'ALL' ?  category = [...cat] :  category = req.query.category.split(',')
+
+    const productData = await Product.aggregate([
+      {$match : {productname : {$regex : '^'+Search , $options : 'i'},category : {$in : category}}},
+      {$skip : skip},
+      {$limit : limit}
+    ])
+    const productCount =  (await Product.find({productname : {$regex : '^'+Search , $options : 'i'}}).where('category').in([...category])).length
+
+    const pageCount = Math.ceil(productCount / limit)
+    if (req.session.user) {
+      res.render("user/shop", {
+        products: productData,
+        pageCount,
+        page,
+        category,
+        Search
+      });
+    }else{
+      res.redirect("/login")
+    }
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
 module.exports = {
   getHome,
   getLogin,
@@ -1137,4 +1180,5 @@ module.exports = {
   getWishlist,
   addWishlist,
   addToCartWishlist,
+  getShop,
 };
