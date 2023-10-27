@@ -24,7 +24,7 @@ const getHome = async (req, res) => {
   try {
     const bannerData = await Banner.find();
     const product = await Product.find();
-    if (req.session.user) {
+    if (req.session?.user) {
       console.log("enter if")
       res.render("user/home", {
         user: req.session.name,
