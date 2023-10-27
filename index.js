@@ -12,7 +12,7 @@ app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 
 //session
-// app.use(session({secret:'salah',saveUninitialized:true,resave:false,cookie:({maxAge:day})}))
+app.use(session({secret:'salah',saveUninitialized:true,resave:false,cookie:({maxAge:day})}))
 
 //cookies
 
