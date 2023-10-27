@@ -38,7 +38,7 @@ const getHome = async (req, res) => {
     }
   } catch (error) {
     res.redirect("/serverERR", { message: error.message });
-    console.log(error.message);
+    console.log(error);
   }
 };
 
