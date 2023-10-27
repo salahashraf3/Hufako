@@ -33,6 +33,7 @@ const getHome = async (req, res) => {
       });
     } else {
       console.log("enter else")
+      console.log(req.session)
       req.session.user = false;
       res.render("user/home", { products: product, banner: bannerData });
     }
